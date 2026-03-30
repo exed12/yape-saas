@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yape Monitor — Iniciar sesión</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --yape:#6C2FAD;--yape-light:#8B3FD9;--bg:#0D0B12;--surface:#14111E;--border:rgba(108,47,173,0.2);--border2:rgba(255,255,255,0.06);--text:#F0EBF8;--muted:#8B7FA8;--green:#22D98F;--red:#F87171;--font:'Sora',sans-serif;--mono:'JetBrains Mono',monospace; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(108,47,173,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(108,47,173,0.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}
+  body::after{content:'';position:fixed;top:-200px;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(108,47,173,0.15) 0%,transparent 70%);pointer-events:none}
+  .card{position:relative;z-index:1;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px;width:100%;max-width:420px}
+  .logo{width:52px;height:52px;background:var(--yape);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 0 30px rgba(108,47,173,0.4)}
+  .logo svg{width:28px;height:28px;fill:white}
+  h1{font-size:22px;font-weight:600;text-align:center;margin-bottom:6px}
+  .subtitle{font-size:13px;color:var(--muted);text-align:center;margin-bottom:28px}
+  .tabs{display:flex;background:rgba(255,255,255,0.04);border-radius:10px;padding:4px;margin-bottom:24px;gap:4px}
+  .tab{flex:1;padding:8px;border:none;background:transparent;color:var(--muted);font-family:var(--font);font-size:13px;font-weight:500;border-radius:8px;cursor:pointer;transition:all 0.2s}
+  .tab.active{background:var(--yape);color:white}
+  .field{margin-bottom:16px}
+  .field label{display:block;font-size:11px;font-family:var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px}
+  .field input{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border2);border-radius:10px;padding:11px 14px;color:var(--text);font-family:var(--font);font-size:14px;outline:none;transition:border-color 0.2s}
+  .field input:focus{border-color:var(--yape)}
+  .btn{width:100%;padding:13px;background:var(--yape);border:none;border-radius:10px;color:white;font-family:var(--font);font-size:15px;font-weight:600;cursor:pointer;margin-top:8px;transition:background 0.2s}
+  .btn:hover{background:var(--yape-light)}
+  .btn:disabled{opacity:0.6;cursor:not-allowed}
+  .error{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--red);margin-bottom:16px;display:none}
+  .form-panel{display:none} .form-panel.active{display:block}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14.5v-4h3l-5-7v4H8l5 7z"/></svg></div>
+  <h1>Yape Monitor</h1>
+  <p class="subtitle">Dashboard de pagos en tiempo real</p>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('login')">Iniciar sesión</button>
+    <button class="tab" onclick="showTab('registro')">Registrarse</button>
+  </div>
+
+  <div id="error-box" class="error"></div>
+
+  <!-- Login -->
+  <div class="form-panel active" id="panel-login">
+    <div class="field"><label>Email</label><input type="email" id="login-email" placeholder="tu@email.com" autocomplete="email"></div>
+    <div class="field"><label>Contraseña</label><input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password"></div>
+    <button class="btn" onclick="login()">Entrar</button>
+  </div>
+
+  <!-- Registro -->
+  <div class="form-panel" id="panel-registro">
+    <div class="field"><label>Nombre del negocio</label><input type="text" id="reg-nombre" placeholder="Mi Tienda"></div>
+    <div class="field"><label>Email</label><input type="email" id="reg-email" placeholder="tu@email.com" autocomplete="email"></div>
+    <div class="field"><label>Contraseña</label><input type="password" id="reg-pass" placeholder="Mínimo 6 caracteres" autocomplete="new-password"></div>
+    <button class="btn" onclick="registro()">Crear cuenta gratis</button>
+  </div>
+</div>
+
+<script>
+  function showTab(tab) {
+    document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', (i===0&&tab==='login')||(i===1&&tab==='registro')));
+    document.getElementById('panel-login').classList.toggle('active', tab==='login');
+    document.getElementById('panel-registro').classList.toggle('active', tab==='registro');
+    document.getElementById('error-box').style.display = 'none';
+  }
+
+  function showError(msg) {
+    const box = document.getElementById('error-box');
+    box.textContent = msg; box.style.display = 'block';
+  }
+
+  async function login() {
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-pass').value;
+    if (!email || !password) return showError('Completa todos los campos');
+    try {
+      const res = await fetch('/api/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email, password}) });
+      const data = await res.json();
+      if (!res.ok) return showError(data.error);
+      window.location.href = '/dashboard';
+    } catch { showError('Error de conexión'); }
+  }
+
+  async function registro() {
+    const nombre_negocio = document.getElementById('reg-nombre').value;
+    const email = document.getElementById('reg-email').value;
+    const password = document.getElementById('reg-pass').value;
+    if (!nombre_negocio || !email || !password) return showError('Completa todos los campos');
+    try {
+      const res = await fetch('/api/registro', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email, password, nombre_negocio}) });
+      const data = await res.json();
+      if (!res.ok) return showError(data.error);
+      window.location.href = '/dashboard';
+    } catch { showError('Error de conexión'); }
+  }
+
+  document.addEventListener('keydown', e => { if (e.key==='Enter') { if(document.getElementById('panel-login').classList.contains('active')) login(); else registro(); } });
+</script>
+</body>
+</html>

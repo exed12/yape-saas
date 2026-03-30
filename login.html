@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reportes — Yape Monitor</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--yape:#6C2FAD;--yape-light:#8B3FD9;--bg:#0D0B12;--surface:#14111E;--surface2:#1C1828;--border:rgba(108,47,173,0.2);--border2:rgba(255,255,255,0.06);--text:#F0EBF8;--muted:#8B7FA8;--green:#22D98F;--amber:#F59E0B;--amber-dim:rgba(245,158,11,0.12);--font:'Sora',sans-serif;--mono:'JetBrains Mono',monospace}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(108,47,173,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(108,47,173,0.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+  .wrap{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:24px 16px 60px}
+  header{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+  .logo{width:44px;height:44px;background:var(--yape);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .logo svg{width:22px;height:22px;fill:white}
+  .header-text h1{font-size:18px;font-weight:600}
+  .header-text p{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:2px}
+  .nav-btn{margin-left:auto;font-size:11px;font-family:var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--border2);padding:6px 10px;border-radius:8px}
+  .filtros{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+  .btn-f{padding:7px 14px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-size:12px;font-family:var(--mono);cursor:pointer;transition:all 0.2s}
+  .btn-f.active{background:var(--yape);border-color:var(--yape);color:white}
+  .fecha-row{display:none;gap:10px;margin-bottom:16px;align-items:center;flex-wrap:wrap}
+  .fecha-row.v{display:flex}
+  .fecha-row label{font-size:12px;color:var(--muted);font-family:var(--mono)}
+  .fecha-row input,.fecha-row select{background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:12px;padding:6px 10px;border-radius:8px;outline:none}
+  .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+  .metric{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;position:relative;overflow:hidden}
+  .metric::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--yape),var(--yape-light));opacity:0.6}
+  .metric-label{font-size:10px;font-family:var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px}
+  .metric-value{font-size:20px;font-weight:700;color:var(--green);line-height:1}
+  .metric-value.w{color:var(--text)}
+  .chart-box{background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:16px;margin-bottom:20px;display:none}
+  .chart-title{font-size:11px;font-family:var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:14px}
+  .bars{display:flex;align-items:flex-end;gap:6px;height:80px}
+  .bar-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;min-width:0}
+  .bar{width:100%;background:var(--yape);border-radius:4px 4px 0 0;min-height:3px;transition:height 0.4s}
+  .bar:hover{background:var(--yape-light)}
+  .bar-label{font-size:9px;font-family:var(--mono);color:var(--muted);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%}
+  .bar-val{font-size:9px;font-family:var(--mono);color:var(--green);text-align:center}
+  .section-label{font-size:10px;font-family:var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+  .tabla-wrap{background:var(--surface);border:1px solid var(--border2);border-radius:14px;overflow:hidden;overflow-x:auto}
+  table{width:100%;border-collapse:collapse}
+  th{font-size:10px;font-family:var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;padding:10px 12px;border-bottom:1px solid var(--border2);text-align:left}
+  td{font-size:13px;padding:10px 12px;border-bottom:1px solid var(--border2);color:var(--text)}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:rgba(108,47,173,0.05)}
+  .td-monto{color:var(--green);font-family:var(--mono);font-weight:600;text-align:right}
+  .td-cod{font-family:var(--mono);font-size:12px;color:var(--amber);text-align:center}
+  .td-hora{font-family:var(--mono);font-size:11px;color:var(--muted)}
+  .export-btn{display:flex;align-items:center;gap:8px;margin-top:16px;padding:10px 18px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--text);font-size:13px;cursor:pointer;transition:all 0.15s}
+  .export-btn:hover{background:var(--surface2);border-color:var(--yape)}
+  .export-btn svg{width:16px;height:16px}
+  .empty{text-align:center;padding:40px;color:var(--muted);font-size:14px}
+  .loader{display:flex;align-items:center;justify-content:center;gap:5px;padding:32px}
+  .loader span{width:6px;height:6px;border-radius:50%;background:var(--yape);animation:b 1.2s infinite ease-in-out}
+  .loader span:nth-child(2){animation-delay:.15s}.loader span:nth-child(3){animation-delay:.3s}
+  @keyframes b{0%,80%,100%{transform:scale(0.6);opacity:0.4}40%{transform:scale(1);opacity:1}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo"><svg viewBox="0 0 24 24"><path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
+    <div class="header-text"><h1>Reportes</h1><p id="subtitulo">Cargando...</p></div>
+    <a href="/dashboard" class="nav-btn">← Dashboard</a>
+  </header>
+
+  <div class="filtros">
+    <button class="btn-f active" onclick="setPeriodo('dia')">Hoy</button>
+    <button class="btn-f" onclick="setPeriodo('semana')">7 días</button>
+    <button class="btn-f" onclick="setPeriodo('mes')">Este mes</button>
+    <button class="btn-f" onclick="setPeriodo('anio')">Este año</button>
+    <button class="btn-f" onclick="setPeriodo('general')">General</button>
+  </div>
+
+  <div class="fecha-row" id="fecha-row">
+    <label id="fecha-lbl">Fecha:</label>
+    <input type="date" id="fecha-in" oninput="cargar()">
+    <select id="mes-sel" style="display:none" onchange="cargar()"></select>
+    <select id="anio-sel" style="display:none" onchange="cargar()"></select>
+  </div>
+
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Total</div><div class="metric-value" id="m-total">S/ 0.00</div></div>
+    <div class="metric"><div class="metric-label">Pagos</div><div class="metric-value w" id="m-cant">0</div></div>
+    <div class="metric"><div class="metric-label">Promedio</div><div class="metric-value" id="m-prom">S/ 0.00</div></div>
+  </div>
+
+  <div class="chart-box" id="chart-box">
+    <div class="chart-title">Monto por día</div>
+    <div class="bars" id="bars"></div>
+  </div>
+
+  <div class="section-label">Detalle de pagos</div>
+  <div class="tabla-wrap"><div id="tabla"><div class="loader"><span></span><span></span><span></span></div></div></div>
+
+  <button class="export-btn" onclick="exportCSV()">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+    Exportar CSV
+  </button>
+</div>
+
+<script>
+  let periodo = 'dia';
+  let datos = [];
+
+  async function checkAuth() {
+    const res = await fetch('/api/me');
+    if (!res.ok) window.location.href = '/';
+  }
+
+  function setPeriodo(p) {
+    periodo = p;
+    document.querySelectorAll('.btn-f').forEach((b,i)=>b.classList.toggle('active',['dia','semana','mes','anio','general'][i]===p));
+    const row = document.getElementById('fecha-row');
+    const fi = document.getElementById('fecha-in');
+    const ms = document.getElementById('mes-sel');
+    const as = document.getElementById('anio-sel');
+    fi.style.display='none'; ms.style.display='none'; as.style.display='none';
+    if (p==='dia') { row.classList.add('v'); fi.style.display='block'; document.getElementById('fecha-lbl').textContent='Fecha:'; if(!fi.value)fi.valueAsDate=new Date(); }
+    else if (p==='mes') { row.classList.add('v'); ms.style.display='block'; as.style.display='block'; document.getElementById('fecha-lbl').textContent='Mes:'; poblarMes(); }
+    else if (p==='anio') { row.classList.add('v'); as.style.display='block'; document.getElementById('fecha-lbl').textContent='Año:'; poblarAnio(); }
+    else row.classList.remove('v');
+    cargar();
+  }
+
+  function poblarMes() {
+    const meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    const ms=document.getElementById('mes-sel'), as=document.getElementById('anio-sel'), hoy=new Date();
+    ms.innerHTML=meses.map((m,i)=>`<option value="${String(i+1).padStart(2,'0')}"${i===hoy.getMonth()?' selected':''}>${m}</option>`).join('');
+    poblarAnio();
+  }
+  function poblarAnio() {
+    const as=document.getElementById('anio-sel'), hoy=new Date();
+    let o=''; for(let y=hoy.getFullYear();y>=2024;y--) o+=`<option value="${y}"${y===hoy.getFullYear()?' selected':''}>${y}</option>`;
+    as.innerHTML=o;
+  }
+
+  async function cargar() {
+    document.getElementById('tabla').innerHTML='<div class="loader"><span></span><span></span><span></span></div>';
+    let url='/api/reporte?periodo='+periodo;
+    if (periodo==='dia') { const v=document.getElementById('fecha-in').value; if(v) url+='&fecha='+v.split('-').reverse().join('/'); }
+    else if (periodo==='mes') { const m=document.getElementById('mes-sel').value, a=document.getElementById('anio-sel').value; url+='&fecha='+a+'-'+m; }
+    else if (periodo==='anio') { const a=document.getElementById('anio-sel').value; url+='&fecha='+a; }
+    try {
+      const res=await fetch(url);
+      if(!res.ok){if(res.status===401)window.location.href='/';return;}
+      const data=await res.json();
+      datos=data.pagos||[];
+      renderReporte(data);
+    } catch { document.getElementById('tabla').innerHTML='<div class="empty">Error al cargar</div>'; }
+  }
+
+  function renderReporte({pagos,total,cantidad,porDia}) {
+    const prom=cantidad>0?total/cantidad:0;
+    document.getElementById('m-total').textContent='S/ '+parseFloat(total).toFixed(2);
+    document.getElementById('m-cant').textContent=cantidad;
+    document.getElementById('m-prom').textContent='S/ '+prom.toFixed(2);
+    const labels={dia:'Hoy',semana:'Últimos 7 días',mes:'Este mes',anio:'Este año',general:'Todos los tiempos'};
+    document.getElementById('subtitulo').textContent=labels[periodo]+' · '+cantidad+' pagos';
+    const cb=document.getElementById('chart-box');
+    if(periodo!=='dia'&&Object.keys(porDia||{}).length>1){cb.style.display='block';renderChart(porDia);}else cb.style.display='none';
+    if(!pagos||pagos.length===0){document.getElementById('tabla').innerHTML='<div class="empty">Sin pagos en este período</div>';return;}
+    document.getElementById('tabla').innerHTML=`<table><thead><tr><th>Fecha</th><th>Hora</th><th>Nombre</th><th style="text-align:center">Cód.</th><th style="text-align:right">Monto</th></tr></thead><tbody>${pagos.map(p=>`<tr><td class="td-hora">${p.fecha||''}</td><td class="td-hora">${p.hora||''}</td><td>${p.nombre||'—'}</td><td class="td-cod">${p.codigo||'—'}</td><td class="td-monto">+S/ ${parseFloat(p.monto||0).toFixed(2)}</td></tr>`).join('')}</tbody></table>`;
+  }
+
+  function renderChart(porDia) {
+    const dias=Object.keys(porDia).sort(), max=Math.max(...Object.values(porDia));
+    document.getElementById('bars').innerHTML=dias.map(d=>{const v=porDia[d],pct=max>0?(v/max)*100:0,lbl=d.split('/').slice(0,2).join('/');return`<div class="bar-col"><div class="bar-val">S/${parseFloat(v).toFixed(0)}</div><div class="bar" style="height:${Math.max(pct*0.6,3)}px"></div><div class="bar-label">${lbl}</div></div>`;}).join('');
+  }
+
+  function exportCSV() {
+    if(!datos.length)return;
+    const csv=[['Fecha','Hora','Nombre','Codigo','Monto'].join(','),...datos.map(p=>[p.fecha||'',p.hora||'','"'+(p.nombre||'').replace(/"/g,'""')+'"',p.codigo||'',parseFloat(p.monto||0).toFixed(2)].join(','))].join('\n');
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='reporte-yape-'+periodo+'.csv';a.click();
+  }
+
+  checkAuth();
+  document.getElementById('fecha-in').valueAsDate=new Date();
+  document.getElementById('fecha-row').classList.add('v');
+  document.getElementById('fecha-in').style.display='block';
+  cargar();
+</script>
+</body>
+</html>
