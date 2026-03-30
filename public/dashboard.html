@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yape Monitor — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--yape:#6C2FAD;--yape-light:#8B3FD9;--yape-dim:#3D1A63;--yape-glow:rgba(108,47,173,0.25);--bg:#0D0B12;--surface:#14111E;--surface2:#1C1828;--border:rgba(108,47,173,0.2);--border2:rgba(255,255,255,0.06);--text:#F0EBF8;--muted:#8B7FA8;--green:#22D98F;--green-dim:rgba(34,217,143,0.12);--amber:#F59E0B;--amber-dim:rgba(245,158,11,0.12);--font:'Sora',sans-serif;--mono:'JetBrains Mono',monospace}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(108,47,173,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(108,47,173,0.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+  .wrap{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:24px 16px 60px}
+  header{display:flex;align-items:center;gap:12px;margin-bottom:28px;flex-wrap:wrap}
+  .logo{width:44px;height:44px;background:var(--yape);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 20px var(--yape-glow)}
+  .logo svg{width:22px;height:22px;fill:white}
+  .header-text h1{font-size:18px;font-weight:600;letter-spacing:-0.3px}
+  .header-text p{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:2px}
+  .header-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+  .nav-btn{font-size:11px;font-family:var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--border2);padding:6px 10px;border-radius:8px;background:transparent;cursor:pointer;transition:all 0.15s;white-space:nowrap}
+  .nav-btn:hover{border-color:var(--border);color:var(--text)}
+  .nav-btn.purple{color:#C89EF5;border-color:var(--border)}
+  .status-pill{display:flex;align-items:center;gap:5px;font-size:11px;font-family:var(--mono);color:var(--green);background:var(--green-dim);border:1px solid rgba(34,217,143,0.2);padding:5px 10px;border-radius:20px}
+  .pulse{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+  .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+  .metric{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 14px;position:relative;overflow:hidden}
+  .metric::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--yape),var(--yape-light));opacity:0.6}
+  .metric-label{font-size:10px;font-family:var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px}
+  .metric-value{font-size:20px;font-weight:700;color:var(--green);letter-spacing:-0.5px;line-height:1}
+  .metric-value.white{color:var(--text)}
+  .section-label{font-size:10px;font-family:var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+  .pagos-list{display:flex;flex-direction:column;gap:8px}
+  .pago-card{background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:14px 16px;display:flex;align-items:flex-start;gap:14px;animation:slideDown 0.35s cubic-bezier(0.34,1.56,0.64,1)}
+  .pago-card.nuevo{border-color:var(--yape);background:rgba(108,47,173,0.08);box-shadow:0 0 20px var(--yape-glow)}
+  @keyframes slideDown{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+  .avatar{width:40px;height:40px;border-radius:50%;background:var(--yape-dim);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#C89EF5;flex-shrink:0;border:1px solid var(--border);margin-top:2px}
+  .pago-info{flex:1;min-width:0}
+  .pago-nombre{font-size:14px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pago-hora{font-size:11px;font-family:var(--mono);color:var(--muted);margin-top:3px}
+  .badge-nuevo{font-size:9px;font-family:var(--mono);background:var(--yape);color:white;padding:2px 6px;border-radius:4px;margin-left:6px;vertical-align:middle}
+  .pago-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
+  .pago-monto{font-size:16px;font-weight:700;color:var(--green);font-family:var(--mono)}
+  .codigo-badge{display:flex;align-items:center;gap:5px;background:var(--amber-dim);border:1px solid rgba(245,158,11,0.25);border-radius:6px;padding:3px 8px}
+  .codigo-badge svg{width:10px;height:10px;flex-shrink:0}
+  .codigo-text{font-size:12px;font-family:var(--mono);font-weight:500;color:var(--amber);letter-spacing:1px}
+  .sin-cod{font-size:10px;font-family:var(--mono);color:var(--muted);opacity:0.5}
+  .empty{text-align:center;padding:48px 0}
+  .empty-icon{width:56px;height:56px;border:2px dashed var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+  .empty p{color:var(--muted);font-size:14px}
+  .empty small{display:block;color:var(--muted);font-size:11px;font-family:var(--mono);margin-top:6px;opacity:0.6}
+  .endpoint-box{margin-top:28px;background:var(--surface2);border:1px solid var(--border2);border-radius:12px;padding:14px 16px}
+  .endpoint-box p{font-size:10px;font-family:var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px}
+  .endpoint-box code{font-size:12px;font-family:var(--mono);color:#C89EF5;word-break:break-all}
+  .loader{display:flex;align-items:center;justify-content:center;gap:5px;padding:32px}
+  .loader span{width:6px;height:6px;border-radius:50%;background:var(--yape);animation:bounce 1.2s infinite ease-in-out}
+  .loader span:nth-child(2){animation-delay:.15s}.loader span:nth-child(3){animation-delay:.3s}
+  @keyframes bounce{0%,80%,100%{transform:scale(0.6);opacity:0.4}40%{transform:scale(1);opacity:1}}
+
+  /* Modal configuración */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:100;align-items:center;justify-content:center;padding:20px}
+  .modal-overlay.open{display:flex}
+  .modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;width:100%;max-width:380px}
+  .modal h3{font-size:16px;font-weight:500;margin-bottom:20px}
+  .modal-field{margin-bottom:14px}
+  .modal-field label{display:block;font-size:11px;font-family:var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px}
+  .modal-field input{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:var(--text);font-family:var(--font);font-size:14px;outline:none}
+  .modal-field input:focus{border-color:var(--yape)}
+  .modal-actions{display:flex;gap:10px;margin-top:20px}
+  .modal-actions button{flex:1;padding:10px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.15s}
+  .btn-cancel{background:transparent;border:1px solid var(--border2);color:var(--muted)}
+  .btn-save{background:var(--yape);border:1px solid var(--yape);color:white}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14.5v-4h3l-5-7v4H8l5 7z"/></svg></div>
+    <div class="header-text">
+      <h1 id="nombre-negocio">Cargando...</h1>
+      <p id="ultima-act">conectando...</p>
+    </div>
+    <div class="header-actions">
+      <a href="/reportes" class="nav-btn purple">Reportes</a>
+      <button class="nav-btn" onclick="document.getElementById('modal-config').classList.add('open')">Config.</button>
+      <button class="nav-btn" onclick="logout()">Salir</button>
+      <div class="status-pill"><div class="pulse"></div><span>EN VIVO</span></div>
+    </div>
+  </header>
+
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Total hoy</div><div class="metric-value" id="total-dia">S/ 0.00</div></div>
+    <div class="metric"><div class="metric-label">Pagos</div><div class="metric-value white" id="total-pagos">0</div></div>
+    <div class="metric"><div class="metric-label">Último</div><div class="metric-value" id="ultimo-monto">—</div></div>
+  </div>
+
+  <div class="section-label">Pagos recibidos hoy</div>
+  <div class="pagos-list" id="pagos-list">
+    <div class="loader"><span></span><span></span><span></span></div>
+  </div>
+
+  <div class="endpoint-box">
+    <p>Tu endpoint para Macrodroid (POST)</p>
+    <code id="endpoint-url">cargando...</code>
+  </div>
+</div>
+
+<!-- Modal configuración -->
+<div class="modal-overlay" id="modal-config">
+  <div class="modal">
+    <h3>Configuración</h3>
+    <div class="modal-field"><label>Nombre del negocio</label><input type="text" id="config-nombre" placeholder="Mi Tienda"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="document.getElementById('modal-config').classList.remove('open')">Cancelar</button>
+      <button class="btn-save" onclick="guardarConfig()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let ultimoId = null;
+  let userToken = null;
+
+  async function init() {
+    try {
+      const res = await fetch('/api/me');
+      if (!res.ok) { window.location.href = '/'; return; }
+      const user = await res.json();
+      document.getElementById('nombre-negocio').textContent = user.nombre_negocio;
+      document.getElementById('config-nombre').value = user.nombre_negocio;
+      userToken = user.token;
+      document.getElementById('endpoint-url').textContent = window.location.origin + '/yape/' + user.token;
+      fetchPagos();
+      setInterval(fetchPagos, 5000);
+    } catch { window.location.href = '/'; }
+  }
+
+  function initials(name) { return (name||'YP').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase(); }
+  function fmt(m) { return 'S/ ' + parseFloat(m||0).toFixed(2); }
+
+  async function fetchPagos() {
+    try {
+      const res = await fetch('/api/pagos');
+      if (!res.ok) { if(res.status===401) window.location.href='/'; return; }
+      const pagos = await res.json();
+      renderPagos(pagos);
+      const ahora = new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+      document.getElementById('ultima-act').textContent = 'actualizado ' + ahora;
+    } catch {}
+  }
+
+  function renderPagos(pagos) {
+    const list = document.getElementById('pagos-list');
+    if (!pagos || pagos.length === 0) {
+      list.innerHTML = `<div class="empty"><div class="empty-icon"><svg width="24" height="24" fill="none" stroke="#3D1A63" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg></div><p>Esperando pagos de hoy...</p><small>Se actualizan automáticamente</small></div>`;
+      document.getElementById('total-dia').textContent = 'S/ 0.00';
+      document.getElementById('total-pagos').textContent = '0';
+      document.getElementById('ultimo-monto').textContent = '—';
+      return;
+    }
+    const total = pagos.reduce((s,p)=>s+parseFloat(p.monto||0),0);
+    document.getElementById('total-dia').textContent = 'S/ '+total.toFixed(2);
+    document.getElementById('total-pagos').textContent = pagos.length;
+    document.getElementById('ultimo-monto').textContent = fmt(pagos[0].monto);
+
+    const nuevoId = pagos[0]?.id;
+    const hayNuevo = ultimoId !== null && String(nuevoId) !== String(ultimoId);
+    ultimoId = nuevoId;
+
+    list.innerHTML = pagos.slice(0,50).map((p,i) => {
+      const esNuevo = i===0 && hayNuevo;
+      const cod = p.codigo
+        ? `<div class="codigo-badge"><svg viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2.5"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg><span class="codigo-text">${p.codigo}</span></div>`
+        : `<span class="sin-cod">sin cód.</span>`;
+      return `<div class="pago-card ${esNuevo?'nuevo':''}">
+        <div class="avatar">${initials(p.nombre)}</div>
+        <div class="pago-info">
+          <div class="pago-nombre">${p.nombre||'Pago recibido'}${esNuevo?'<span class="badge-nuevo">nuevo</span>':''}</div>
+          <div class="pago-hora">${p.hora||''} — Pago recibido</div>
+        </div>
+        <div class="pago-right"><div class="pago-monto">+${fmt(p.monto)}</div>${cod}</div>
+      </div>`;
+    }).join('');
+    if (hayNuevo) setTimeout(()=>{const c=list.querySelector('.nuevo');if(c)c.classList.remove('nuevo');},4000);
+  }
+
+  async function guardarConfig() {
+    const nombre = document.getElementById('config-nombre').value.trim();
+    if (!nombre) return;
+    await fetch('/api/me', { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({nombre_negocio: nombre}) });
+    document.getElementById('nombre-negocio').textContent = nombre;
+    document.getElementById('modal-config').classList.remove('open');
+  }
+
+  async function logout() {
+    await fetch('/api/logout', { method:'POST' });
+    window.location.href = '/';
+  }
+
+  init();
+</script>
+</body>
+</html>
