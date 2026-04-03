@@ -200,6 +200,40 @@ app.delete('/api/admin/usuarios/:id',authMiddleware,adminMiddleware,async(req,re
   } catch(e){res.status(500).json({error:'Error'});}
 });
 
+// Pagos de un usuario con filtro de periodo
+app.get('/api/admin/usuarios/:id/pagos',authMiddleware,adminMiddleware,async(req,res)=>{
+  const {periodo,fecha} = req.query;
+  try {
+    let query, params;
+    const hoy = fechaHoyPeru();
+    if (!periodo || periodo==='dia') {
+      const dia = fecha || hoy;
+      query = 'SELECT * FROM pagos WHERE usuario_id=$1 AND fecha=$2 ORDER BY ts DESC';
+      params = [req.params.id, dia];
+    } else if (periodo==='semana') {
+      query = "SELECT * FROM pagos WHERE usuario_id=$1 AND ts>=NOW()-INTERVAL '7 days' ORDER BY ts DESC";
+      params = [req.params.id];
+    } else if (periodo==='mes') {
+      const mes = fecha || new Date().toISOString().slice(0,7);
+      query = "SELECT * FROM pagos WHERE usuario_id=$1 AND TO_CHAR(ts,'YYYY-MM')=$2 ORDER BY ts DESC";
+      params = [req.params.id, mes];
+    } else if (periodo==='anio') {
+      const anio = fecha || String(new Date().getFullYear());
+      query = "SELECT * FROM pagos WHERE usuario_id=$1 AND TO_CHAR(ts,'YYYY')=$2 ORDER BY ts DESC";
+      params = [req.params.id, anio];
+    } else {
+      query = 'SELECT * FROM pagos WHERE usuario_id=$1 ORDER BY ts DESC LIMIT 500';
+      params = [req.params.id];
+    }
+    const r = await pool.query(query, params);
+    const pagos = r.rows;
+    const total = pagos.reduce((s,p)=>s+parseFloat(p.monto||0),0);
+    const porDia = {};
+    pagos.forEach(p=>{porDia[p.fecha]=(porDia[p.fecha]||0)+parseFloat(p.monto||0);});
+    res.json({pagos, total:parseFloat(total.toFixed(2)), cantidad:pagos.length, porDia});
+  } catch(e){console.error(e);res.status(500).json({error:'Error'});}
+});
+
 // ── YAPE WEBHOOK ──────────────────────────────────────────────────────────────
 app.post('/yape/:token',async(req,res)=>{
   try {
