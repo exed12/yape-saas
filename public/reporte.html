@@ -118,7 +118,7 @@
     const ms = document.getElementById('mes-sel');
     const as = document.getElementById('anio-sel');
     fi.style.display='none'; ms.style.display='none'; as.style.display='none';
-    if (p==='dia') { row.classList.add('v'); fi.style.display='block'; document.getElementById('fecha-lbl').textContent='Fecha:'; if(!fi.value)fi.valueAsDate=new Date(); }
+    if (p==='dia') { row.classList.add('v'); fi.style.display='block'; document.getElementById('fecha-lbl').textContent='Fecha:'; fi.valueAsDate=new Date(); }
     else if (p==='mes') { row.classList.add('v'); ms.style.display='block'; as.style.display='block'; document.getElementById('fecha-lbl').textContent='Mes:'; poblarMes(); }
     else if (p==='anio') { row.classList.add('v'); as.style.display='block'; document.getElementById('fecha-lbl').textContent='Año:'; poblarAnio(); }
     else row.classList.remove('v');
