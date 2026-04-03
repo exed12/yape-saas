@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Yape Monitor</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--yape:#6C2FAD;--yape-light:#8B3FD9;--yape-dim:#3D1A63;--bg:#0D0B12;--surface:#14111E;--surface2:#1C1828;--border:rgba(108,47,173,0.2);--border2:rgba(255,255,255,0.06);--text:#F0EBF8;--muted:#8B7FA8;--green:#22D98F;--green-dim:rgba(34,217,143,0.12);--red:#F87171;--red-dim:rgba(248,113,113,0.1);--amber:#F59E0B;--amber-dim:rgba(245,158,11,0.12);--font:'Sora',sans-serif;--mono:'JetBrains Mono',monospace}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(108,47,173,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(108,47,173,0.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+  .wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:24px 16px 60px}
+  header{display:flex;align-items:center;gap:12px;margin-bottom:28px;flex-wrap:wrap}
+  .logo{width:44px;height:44px;background:var(--yape);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 20px rgba(108,47,173,0.4)}
+  .logo svg{width:22px;height:22px;fill:white}
+  .header-text h1{font-size:18px;font-weight:600}
+  .header-text p{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:2px}
+  .hactions{margin-left:auto;display:flex;gap:8px}
+  .nbtn{font-size:11px;font-family:var(--mono);color:var(--muted);border:1px solid var(--border2);padding:6px 10px;border-radius:8px;background:transparent;cursor:pointer;text-decoration:none;transition:all 0.15s}
+  .nbtn:hover{border-color:var(--border);color:var(--text)}
+  .nbtn.p{background:var(--yape);border-color:var(--yape);color:white}
+
+  /* Stats */
+  .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:24px}
+  @media(min-width:600px){.stats{grid-template-columns:repeat(4,1fr)}}
+  .stat{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 14px;position:relative;overflow:hidden}
+  .stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--yape),var(--yape-light));opacity:0.6}
+  .stat-label{font-size:10px;font-family:var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px}
+  .stat-value{font-size:20px;font-weight:700;color:var(--green);line-height:1}
+  .stat-value.w{color:var(--text)}
+  .stat-sub{font-size:11px;color:var(--muted);margin-top:4px;font-family:var(--mono)}
+
+  /* Sección */
+  .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .section-title{font-size:13px;font-weight:500;color:var(--text)}
+  .section-sub{font-size:11px;color:var(--muted);font-family:var(--mono)}
+
+  /* Tabla usuarios */
+  .tabla-wrap{background:var(--surface);border:1px solid var(--border2);border-radius:14px;overflow:hidden;overflow-x:auto;margin-bottom:20px}
+  table{width:100%;border-collapse:collapse;min-width:600px}
+  th{font-size:10px;font-family:var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;padding:10px 14px;border-bottom:1px solid var(--border2);text-align:left;white-space:nowrap}
+  td{font-size:13px;padding:12px 14px;border-bottom:1px solid var(--border2);color:var(--text)}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:rgba(108,47,173,0.04)}
+  .badge{display:inline-block;padding:3px 8px;border-radius:6px;font-size:11px;font-family:var(--mono);font-weight:500}
+  .badge.activo{background:var(--green-dim);color:var(--green)}
+  .badge.inactivo{background:var(--red-dim);color:var(--red)}
+  .badge.basico{background:var(--border2);color:var(--muted)}
+  .badge.pro{background:var(--amber-dim);color:var(--amber)}
+  .td-mono{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .td-green{font-family:var(--mono);font-weight:600;color:var(--green)}
+  .acciones{display:flex;gap:6px}
+  .abtn{padding:4px 10px;border-radius:6px;font-size:11px;font-family:var(--mono);cursor:pointer;border:1px solid var(--border2);background:transparent;color:var(--muted);transition:all 0.15s}
+  .abtn:hover{border-color:var(--border);color:var(--text)}
+  .abtn.danger{border-color:rgba(248,113,113,0.3);color:var(--red)}
+  .abtn.danger:hover{background:var(--red-dim)}
+  .abtn.success{border-color:rgba(34,217,143,0.3);color:var(--green)}
+
+  /* Modal */
+  .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100;align-items:center;justify-content:center;padding:20px}
+  .overlay.open{display:flex}
+  .modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;width:100%;max-width:420px;max-height:90vh;overflow-y:auto}
+  .modal h3{font-size:16px;font-weight:500;margin-bottom:20px}
+  .mfield{margin-bottom:14px}
+  .mfield label{display:block;font-size:11px;font-family:var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px}
+  .mfield input,.mfield select{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:var(--text);font-family:var(--font);font-size:14px;outline:none}
+  .mfield input:focus,.mfield select:focus{border-color:var(--yape)}
+  .mfield select option{background:#1C1828}
+  .mactions{display:flex;gap:10px;margin-top:20px}
+  .mactions button{flex:1;padding:10px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.15s}
+  .mcancel{background:transparent;border:1px solid var(--border2);color:var(--muted)}
+  .msave{background:var(--yape);border:1px solid var(--yape);color:white}
+  .merror{background:var(--red-dim);border:1px solid rgba(248,113,113,0.3);border-radius:8px;padding:10px;font-size:13px;color:var(--red);margin-bottom:14px;display:none}
+
+  /* Token box */
+  .token-box{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-family:var(--mono);font-size:11px;color:#C89EF5;word-break:break-all;margin-top:8px;cursor:pointer}
+  .token-box:hover{border-color:var(--border)}
+
+  .empty{text-align:center;padding:40px;color:var(--muted);font-size:14px}
+  .loader{display:flex;align-items:center;justify-content:center;gap:5px;padding:32px}
+  .loader span{width:6px;height:6px;border-radius:50%;background:var(--yape);animation:b 1.2s infinite ease-in-out}
+  .loader span:nth-child(2){animation-delay:.15s}.loader span:nth-child(3){animation-delay:.3s}
+  @keyframes b{0%,80%,100%{transform:scale(0.6);opacity:0.4}40%{transform:scale(1);opacity:1}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo"><svg viewBox="0 0 24 24"><path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg></div>
+    <div class="header-text"><h1>Panel de Administración</h1><p id="admin-email">Cargando...</p></div>
+    <div class="hactions">
+      <a href="/dashboard" class="nbtn">Mi dashboard</a>
+      <button class="nbtn p" onclick="abrirModalCrear()">+ Nuevo usuario</button>
+      <button class="nbtn" onclick="logout()">Salir</button>
+    </div>
+  </header>
+
+  <!-- Stats -->
+  <div class="stats" id="stats">
+    <div class="loader" style="grid-column:1/-1"><span></span><span></span><span></span></div>
+  </div>
+
+  <!-- Usuarios -->
+  <div class="section-header">
+    <div><div class="section-title">Usuarios registrados</div><div class="section-sub" id="usuarios-count">cargando...</div></div>
+    <button class="nbtn" onclick="cargarTodo()">↻ Actualizar</button>
+  </div>
+  <div class="tabla-wrap"><div id="tabla-usuarios"><div class="loader"><span></span><span></span><span></span></div></div></div>
+</div>
+
+<!-- Modal crear/editar usuario -->
+<div class="overlay" id="modal-usuario">
+  <div class="modal">
+    <h3 id="modal-titulo">Nuevo usuario</h3>
+    <div class="merror" id="modal-error"></div>
+    <div class="mfield"><label>Nombre del negocio</label><input type="text" id="u-nombre" placeholder="Mi Tienda"></div>
+    <div class="mfield"><label>Email</label><input type="email" id="u-email" placeholder="cliente@email.com"></div>
+    <div class="mfield"><label>Contraseña <span id="pass-hint" style="color:var(--muted);font-weight:400">(mínimo 6 caracteres)</span></label><input type="password" id="u-pass" placeholder="••••••••"></div>
+    <div class="mfield"><label>Plan</label>
+      <select id="u-plan">
+        <option value="basico">Básico</option>
+        <option value="pro">Pro</option>
+      </select>
+    </div>
+    <div class="mactions">
+      <button class="mcancel" onclick="cerrarModal()">Cancelar</button>
+      <button class="msave" id="modal-btn-guardar" onclick="guardarUsuario()">Crear usuario</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal ver token -->
+<div class="overlay" id="modal-token">
+  <div class="modal">
+    <h3>Endpoint Macrodroid</h3>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Comparte esta URL con el cliente para configurar Macrodroid:</p>
+    <div class="token-box" id="token-url" onclick="copiarToken()">cargando...</div>
+    <p style="font-size:11px;color:var(--muted);margin-top:8px;font-family:var(--mono)">Toca para copiar</p>
+    <div class="mactions"><button class="msave" onclick="document.getElementById('modal-token').classList.remove('open')">Cerrar</button></div>
+  </div>
+</div>
+
+<script>
+  let editandoId = null;
+
+  async function checkAdmin() {
+    const res = await fetch('/api/me');
+    if (!res.ok) { window.location.href='/'; return; }
+    const u = await res.json();
+    if (u.rol !== 'admin') { window.location.href='/dashboard'; return; }
+    document.getElementById('admin-email').textContent = u.email;
+  }
+
+  async function cargarStats() {
+    try {
+      const res = await fetch('/api/admin/stats');
+      const s = await res.json();
+      document.getElementById('stats').innerHTML = `
+        <div class="stat"><div class="stat-label">Usuarios</div><div class="stat-value w">${s.usuarios}</div><div class="stat-sub">${s.activos} activos</div></div>
+        <div class="stat"><div class="stat-label">Pagos hoy</div><div class="stat-value">${s.pagosHoy.cantidad}</div><div class="stat-sub">S/ ${parseFloat(s.pagosHoy.total).toFixed(2)}</div></div>
+        <div class="stat"><div class="stat-label">Este mes</div><div class="stat-value">${s.pagosMes.cantidad}</div><div class="stat-sub">S/ ${parseFloat(s.pagosMes.total).toFixed(2)}</div></div>
+        <div class="stat"><div class="stat-label">Total histórico</div><div class="stat-value">${s.pagosTotal.cantidad}</div><div class="stat-sub">S/ ${parseFloat(s.pagosTotal.total).toFixed(2)}</div></div>
+      `;
+    } catch {}
+  }
+
+  async function cargarUsuarios() {
+    try {
+      const res = await fetch('/api/admin/usuarios');
+      const usuarios = await res.json();
+      document.getElementById('usuarios-count').textContent = usuarios.length + ' usuarios registrados';
+      if (!usuarios.length) { document.getElementById('tabla-usuarios').innerHTML = '<div class="empty">Sin usuarios aún — crea el primero</div>'; return; }
+      document.getElementById('tabla-usuarios').innerHTML = `
+        <table>
+          <thead><tr>
+            <th>Negocio</th><th>Email</th><th>Plan</th><th>Estado</th>
+            <th>Pagos</th><th>Total S/</th><th>Último pago</th><th>Acciones</th>
+          </tr></thead>
+          <tbody>
+            ${usuarios.map(u => `<tr>
+              <td style="font-weight:500">${u.nombre_negocio}</td>
+              <td class="td-mono">${u.email}</td>
+              <td><span class="badge ${u.plan}">${u.plan}</span></td>
+              <td><span class="badge ${u.activo?'activo':'inactivo'}">${u.activo?'Activo':'Inactivo'}</span></td>
+              <td class="td-mono">${u.total_pagos}</td>
+              <td class="td-green">${parseFloat(u.total_monto).toFixed(2)}</td>
+              <td class="td-mono">${u.ultimo_pago ? new Date(u.ultimo_pago).toLocaleDateString('es-PE') : '—'}</td>
+              <td><div class="acciones">
+                <button class="abtn" onclick="verToken('${u.token}')">URL</button>
+                <button class="abtn" onclick="editarUsuario(${JSON.stringify(u).replace(/"/g,'&quot;')})">Editar</button>
+                <button class="abtn ${u.activo?'danger':'success'}" onclick="toggleActivo(${u.id},${u.activo})">${u.activo?'Desactivar':'Activar'}</button>
+                <button class="abtn danger" onclick="eliminarUsuario(${u.id},'${u.nombre_negocio}')">Eliminar</button>
+              </div></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>`;
+    } catch(e) { document.getElementById('tabla-usuarios').innerHTML = '<div class="empty">Error al cargar usuarios</div>'; }
+  }
+
+  function cargarTodo() { cargarStats(); cargarUsuarios(); }
+
+  function abrirModalCrear() {
+    editandoId = null;
+    document.getElementById('modal-titulo').textContent = 'Nuevo usuario';
+    document.getElementById('modal-btn-guardar').textContent = 'Crear usuario';
+    document.getElementById('u-nombre').value = '';
+    document.getElementById('u-email').value = '';
+    document.getElementById('u-pass').value = '';
+    document.getElementById('u-plan').value = 'basico';
+    document.getElementById('u-email').disabled = false;
+    document.getElementById('pass-hint').textContent = '(mínimo 6 caracteres)';
+    document.getElementById('modal-error').style.display = 'none';
+    document.getElementById('modal-usuario').classList.add('open');
+  }
+
+  function editarUsuario(u) {
+    editandoId = u.id;
+    document.getElementById('modal-titulo').textContent = 'Editar usuario';
+    document.getElementById('modal-btn-guardar').textContent = 'Guardar cambios';
+    document.getElementById('u-nombre').value = u.nombre_negocio;
+    document.getElementById('u-email').value = u.email;
+    document.getElementById('u-email').disabled = true;
+    document.getElementById('u-pass').value = '';
+    document.getElementById('u-plan').value = u.plan;
+    document.getElementById('pass-hint').textContent = '(dejar vacío para no cambiar)';
+    document.getElementById('modal-error').style.display = 'none';
+    document.getElementById('modal-usuario').classList.add('open');
+  }
+
+  function cerrarModal() { document.getElementById('modal-usuario').classList.remove('open'); }
+
+  async function guardarUsuario() {
+    const nombre = document.getElementById('u-nombre').value.trim();
+    const email = document.getElementById('u-email').value.trim();
+    const pass = document.getElementById('u-pass').value;
+    const plan = document.getElementById('u-plan').value;
+    const errBox = document.getElementById('modal-error');
+    errBox.style.display = 'none';
+
+    if (!nombre) { errBox.textContent='Nombre requerido'; errBox.style.display='block'; return; }
+
+    try {
+      let res, data;
+      if (editandoId) {
+        const body = { nombre_negocio: nombre, plan };
+        if (pass) { if(pass.length<6){errBox.textContent='Contraseña mínimo 6 caracteres';errBox.style.display='block';return;} body.password=pass; }
+        res = await fetch('/api/admin/usuarios/'+editandoId, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+        data = await res.json();
+      } else {
+        if (!email) { errBox.textContent='Email requerido'; errBox.style.display='block'; return; }
+        if (pass.length<6) { errBox.textContent='Contraseña mínimo 6 caracteres'; errBox.style.display='block'; return; }
+        res = await fetch('/api/admin/usuarios', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email,password:pass,nombre_negocio:nombre,plan}) });
+        data = await res.json();
+      }
+      if (!res.ok) { errBox.textContent=data.error||'Error'; errBox.style.display='block'; return; }
+      cerrarModal();
+      cargarTodo();
+    } catch { errBox.textContent='Error de conexión'; errBox.style.display='block'; }
+  }
+
+  async function toggleActivo(id, activo) {
+    if (!confirm(`¿${activo?'Desactivar':'Activar'} este usuario?`)) return;
+    await fetch('/api/admin/usuarios/'+id, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({activo:!activo}) });
+    cargarTodo();
+  }
+
+  async function eliminarUsuario(id, nombre) {
+    if (!confirm(`¿Eliminar a "${nombre}" y todos sus pagos? Esta acción no se puede deshacer.`)) return;
+    await fetch('/api/admin/usuarios/'+id, { method:'DELETE' });
+    cargarTodo();
+  }
+
+  function verToken(token) {
+    const url = window.location.origin + '/yape/' + token;
+    document.getElementById('token-url').textContent = url;
+    document.getElementById('modal-token').classList.add('open');
+  }
+
+  function copiarToken() {
+    const txt = document.getElementById('token-url').textContent;
+    navigator.clipboard.writeText(txt).then(() => {
+      document.getElementById('token-url').textContent = '¡Copiado!';
+      setTimeout(() => document.getElementById('token-url').textContent = txt, 1500);
+    });
+  }
+
+  async function logout() {
+    await fetch('/api/logout',{method:'POST'});
+    window.location.href='/';
+  }
+
+  checkAdmin().then(() => cargarTodo());
+  setInterval(cargarStats, 30000);
+</script>
+</body>
+</html>
