@@ -63,7 +63,16 @@ async function initDB() {
   console.log('Base de datos lista');
 }
 
-function fechaHoyPeru() { return new Date().toLocaleDateString('es-PE',{timeZone:'America/Lima'}); }
+function parseFecha(f) {
+  // Convierte YYYY-MM-DD a DD/MM/YYYY si es necesario
+  if (!f) return fechaHoyPeru();
+  if (f.includes('-') && f.length === 10) {
+    const [y,m,d] = f.split('-');
+    return d+'/'+m+'/'+y;
+  }
+  return f;
+}
+function fechaHoyPeru() { const d=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Lima'})); return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear(); }
 function horaAhoraPeru() { return new Date().toLocaleTimeString('es-PE',{timeZone:'America/Lima',hour:'2-digit',minute:'2-digit'}); }
 
 function extraerDatos(body) {
@@ -207,7 +216,7 @@ app.get('/api/admin/usuarios/:id/pagos',authMiddleware,adminMiddleware,async(req
     let query, params;
     const hoy = fechaHoyPeru();
     if (!periodo || periodo==='dia') {
-      const dia = fecha || hoy;
+      const dia = parseFecha(fecha);
       query = 'SELECT * FROM pagos WHERE usuario_id=$1 AND fecha=$2 ORDER BY ts DESC';
       params = [req.params.id, dia];
     } else if (periodo==='semana') {
@@ -262,7 +271,7 @@ app.get('/api/reporte',authMiddleware,async(req,res)=>{
   const{periodo,fecha}=req.query;
   try {
     let query,params;
-    if(periodo==='dia'){const dia=fecha||fechaHoyPeru();query='SELECT * FROM pagos WHERE usuario_id=$1 AND fecha=$2 ORDER BY ts DESC';params=[req.user.id,dia];}
+    if(periodo==='dia'){const dia=parseFecha(fecha);query='SELECT * FROM pagos WHERE usuario_id=$1 AND fecha=$2 ORDER BY ts DESC';params=[req.user.id,dia];}
     else if(periodo==='semana'){query="SELECT * FROM pagos WHERE usuario_id=$1 AND ts>=NOW()-INTERVAL '7 days' ORDER BY ts DESC";params=[req.user.id];}
     else if(periodo==='mes'){const mes=fecha||new Date().toISOString().slice(0,7);query="SELECT * FROM pagos WHERE usuario_id=$1 AND TO_CHAR(ts,'YYYY-MM')=$2 ORDER BY ts DESC";params=[req.user.id,mes];}
     else if(periodo==='anio'){const anio=fecha||String(new Date().getFullYear());query="SELECT * FROM pagos WHERE usuario_id=$1 AND TO_CHAR(ts,'YYYY')=$2 ORDER BY ts DESC";params=[req.user.id,anio];}
