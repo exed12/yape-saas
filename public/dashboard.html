@@ -16,10 +16,13 @@
   .logo svg{width:22px;height:22px;fill:white}
   .header-text h1{font-size:18px;font-weight:600;letter-spacing:-0.3px}
   .header-text p{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:2px}
-  .header-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+  .header-actions{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
   .nav-btn{font-size:11px;font-family:var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--border2);padding:6px 10px;border-radius:8px;background:transparent;cursor:pointer;transition:all 0.15s;white-space:nowrap}
   .nav-btn:hover{border-color:var(--border);color:var(--text)}
   .nav-btn.purple{color:#C89EF5;border-color:var(--border)}
+  .notif-btn{font-size:11px;font-family:var(--mono);border:1px solid var(--border2);padding:6px 10px;border-radius:8px;background:transparent;cursor:pointer;transition:all 0.15s;white-space:nowrap}
+  .notif-btn.on{color:var(--green);border-color:rgba(34,217,143,0.3)}
+  .notif-btn.off{color:var(--muted)}
   .status-pill{display:flex;align-items:center;gap:5px;font-size:11px;font-family:var(--mono);color:var(--green);background:var(--green-dim);border:1px solid rgba(34,217,143,0.2);padding:5px 10px;border-radius:20px}
   .pulse{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
   @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
@@ -31,14 +34,16 @@
   .metric-value.white{color:var(--text)}
   .section-label{font-size:10px;font-family:var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
   .pagos-list{display:flex;flex-direction:column;gap:8px}
-  .pago-card{background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:14px 16px;display:flex;align-items:flex-start;gap:14px;animation:slideDown 0.35s cubic-bezier(0.34,1.56,0.64,1)}
+  .pago-card{background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:14px 16px;display:flex;align-items:flex-start;gap:14px;animation:slideDown 0.35s cubic-bezier(0.34,1.56,0.64,1);transition:background 0.8s,border-color 0.8s,box-shadow 0.8s}
   .pago-card.nuevo{border-color:var(--yape);background:rgba(108,47,173,0.08);box-shadow:0 0 20px var(--yape-glow)}
+  .pago-card.reciente{border-color:var(--green);background:rgba(34,217,143,0.07);box-shadow:0 0 18px rgba(34,217,143,0.2)}
   @keyframes slideDown{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
   .avatar{width:40px;height:40px;border-radius:50%;background:var(--yape-dim);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#C89EF5;flex-shrink:0;border:1px solid var(--border);margin-top:2px}
   .pago-info{flex:1;min-width:0}
   .pago-nombre{font-size:14px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .pago-hora{font-size:11px;font-family:var(--mono);color:var(--muted);margin-top:3px}
   .badge-nuevo{font-size:9px;font-family:var(--mono);background:var(--yape);color:white;padding:2px 6px;border-radius:4px;margin-left:6px;vertical-align:middle}
+  .badge-reciente{font-size:9px;font-family:var(--mono);background:var(--green);color:#0D1F14;padding:2px 6px;border-radius:4px;margin-left:6px;vertical-align:middle}
   .pago-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
   .pago-monto{font-size:16px;font-weight:700;color:var(--green);font-family:var(--mono)}
   .codigo-badge{display:flex;align-items:center;gap:5px;background:var(--amber-dim);border:1px solid rgba(245,158,11,0.25);border-radius:6px;padding:3px 8px}
@@ -56,8 +61,6 @@
   .loader span{width:6px;height:6px;border-radius:50%;background:var(--yape);animation:bounce 1.2s infinite ease-in-out}
   .loader span:nth-child(2){animation-delay:.15s}.loader span:nth-child(3){animation-delay:.3s}
   @keyframes bounce{0%,80%,100%{transform:scale(0.6);opacity:0.4}40%{transform:scale(1);opacity:1}}
-
-  /* Modal configuración */
   .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:100;align-items:center;justify-content:center;padding:20px}
   .modal-overlay.open{display:flex}
   .modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;width:100%;max-width:380px}
@@ -82,6 +85,7 @@
     </div>
     <div class="header-actions">
       <a href="/reportes" class="nav-btn purple">Reportes</a>
+      <button class="notif-btn off" id="notif-btn" onclick="toggleNotif()">🔔 Notif.</button>
       <button class="nav-btn" onclick="document.getElementById('modal-config').classList.add('open')">Config.</button>
       <button class="nav-btn" onclick="logout()">Salir</button>
       <div class="status-pill"><div class="pulse"></div><span>EN VIVO</span></div>
@@ -105,7 +109,6 @@
   </div>
 </div>
 
-<!-- Modal configuración -->
 <div class="modal-overlay" id="modal-config">
   <div class="modal">
     <h3>Configuración</h3>
@@ -119,24 +122,74 @@
 
 <script>
   let ultimoId = null;
-  let userToken = null;
+  let notifActivas = false;
+  let audioCtx = null;
+  let recienteTimer = null;
+
+  // ── Sonido con Web Audio API (no necesita archivo externo) ──
+  function reproducirSonido() {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(523, audioCtx.currentTime);       // Do
+      osc.frequency.setValueAtTime(659, audioCtx.currentTime + 0.1); // Mi
+      osc.frequency.setValueAtTime(784, audioCtx.currentTime + 0.2); // Sol
+      gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
+      osc.start(audioCtx.currentTime);
+      osc.stop(audioCtx.currentTime + 0.6);
+    } catch(e) { console.log('Audio no disponible'); }
+  }
+
+  // ── Notificación del navegador ──
+  function enviarNotificacion(nombre, monto) {
+    if (!notifActivas) return;
+    if (Notification.permission === 'granted') {
+      new Notification('💜 Yape — Pago recibido', {
+        body: `${nombre} te envió S/ ${parseFloat(monto).toFixed(2)}`,
+        icon: '/favicon.ico',
+        tag: 'yape-pago'
+      });
+    }
+  }
+
+  // ── Toggle notificaciones ──
+  async function toggleNotif() {
+    if (!notifActivas) {
+      if (Notification.permission === 'default') {
+        const perm = await Notification.requestPermission();
+        if (perm !== 'granted') { alert('Permiso denegado. Activa las notificaciones en el navegador.'); return; }
+      }
+      if (Notification.permission === 'denied') { alert('Notificaciones bloqueadas. Actívalas en ajustes del navegador.'); return; }
+      notifActivas = true;
+      document.getElementById('notif-btn').textContent = '🔔 Notif. ON';
+      document.getElementById('notif-btn').classList.replace('off','on');
+    } else {
+      notifActivas = false;
+      document.getElementById('notif-btn').textContent = '🔕 Notif. OFF';
+      document.getElementById('notif-btn').classList.replace('on','off');
+    }
+  }
 
   async function init() {
     try {
       const res = await fetch('/api/me');
-      if (!res.ok) { window.location.href = '/'; return; }
+      if (!res.ok) { window.location.href='/'; return; }
       const user = await res.json();
       document.getElementById('nombre-negocio').textContent = user.nombre_negocio;
       document.getElementById('config-nombre').value = user.nombre_negocio;
-      userToken = user.token;
-      document.getElementById('endpoint-url').textContent = window.location.origin + '/yape/' + user.token;
+      document.getElementById('endpoint-url').textContent = window.location.origin+'/yape/'+user.token;
       fetchPagos();
       setInterval(fetchPagos, 5000);
-    } catch { window.location.href = '/'; }
+    } catch { window.location.href='/'; }
   }
 
-  function initials(name) { return (name||'YP').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase(); }
-  function fmt(m) { return 'S/ ' + parseFloat(m||0).toFixed(2); }
+  function initials(n) { return (n||'YP').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase(); }
+  function fmt(m) { return 'S/ '+parseFloat(m||0).toFixed(2); }
 
   async function fetchPagos() {
     try {
@@ -145,56 +198,78 @@
       const pagos = await res.json();
       renderPagos(pagos);
       const ahora = new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-      document.getElementById('ultima-act').textContent = 'actualizado ' + ahora;
+      document.getElementById('ultima-act').textContent = 'actualizado '+ahora;
     } catch {}
   }
 
   function renderPagos(pagos) {
     const list = document.getElementById('pagos-list');
-    if (!pagos || pagos.length === 0) {
+    if (!pagos || pagos.length===0) {
       list.innerHTML = `<div class="empty"><div class="empty-icon"><svg width="24" height="24" fill="none" stroke="#3D1A63" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg></div><p>Esperando pagos de hoy...</p><small>Se actualizan automáticamente</small></div>`;
-      document.getElementById('total-dia').textContent = 'S/ 0.00';
-      document.getElementById('total-pagos').textContent = '0';
-      document.getElementById('ultimo-monto').textContent = '—';
+      document.getElementById('total-dia').textContent='S/ 0.00';
+      document.getElementById('total-pagos').textContent='0';
+      document.getElementById('ultimo-monto').textContent='—';
       return;
     }
     const total = pagos.reduce((s,p)=>s+parseFloat(p.monto||0),0);
-    document.getElementById('total-dia').textContent = 'S/ '+total.toFixed(2);
-    document.getElementById('total-pagos').textContent = pagos.length;
-    document.getElementById('ultimo-monto').textContent = fmt(pagos[0].monto);
+    document.getElementById('total-dia').textContent='S/ '+total.toFixed(2);
+    document.getElementById('total-pagos').textContent=pagos.length;
+    document.getElementById('ultimo-monto').textContent=fmt(pagos[0].monto);
 
     const nuevoId = pagos[0]?.id;
     const hayNuevo = ultimoId !== null && String(nuevoId) !== String(ultimoId);
     ultimoId = nuevoId;
+
+    // Si hay pago nuevo — sonido y notificación
+    if (hayNuevo) {
+      reproducirSonido();
+      enviarNotificacion(pagos[0].nombre, pagos[0].monto);
+    }
 
     list.innerHTML = pagos.slice(0,50).map((p,i) => {
       const esNuevo = i===0 && hayNuevo;
       const cod = p.codigo
         ? `<div class="codigo-badge"><svg viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2.5"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg><span class="codigo-text">${p.codigo}</span></div>`
         : `<span class="sin-cod">sin cód.</span>`;
-      return `<div class="pago-card ${esNuevo?'nuevo':''}">
+      const badge = esNuevo
+        ? '<span class="badge-nuevo">nuevo</span>'
+        : i===0 ? '<span class="badge-reciente">último</span>' : '';
+      const claseCard = esNuevo ? 'nuevo' : i===0 ? 'reciente' : '';
+      return `<div class="pago-card ${claseCard}" id="pago-card-${p.id}">
         <div class="avatar">${initials(p.nombre)}</div>
         <div class="pago-info">
-          <div class="pago-nombre">${p.nombre||'Pago recibido'}${esNuevo?'<span class="badge-nuevo">nuevo</span>':''}</div>
+          <div class="pago-nombre">${p.nombre||'Pago recibido'}${badge}</div>
           <div class="pago-hora">${p.hora||''} — Pago recibido</div>
         </div>
         <div class="pago-right"><div class="pago-monto">+${fmt(p.monto)}</div>${cod}</div>
       </div>`;
     }).join('');
-    if (hayNuevo) setTimeout(()=>{const c=list.querySelector('.nuevo');if(c)c.classList.remove('nuevo');},4000);
+
+    // Quita clase nuevo después de 4s y reciente después de 60s
+    if (hayNuevo) {
+      setTimeout(()=>{
+        const c=list.querySelector('.nuevo');
+        if(c){ c.classList.remove('nuevo'); c.classList.add('reciente'); }
+      },4000);
+    }
+    if (recienteTimer) clearTimeout(recienteTimer);
+    recienteTimer = setTimeout(()=>{
+      const c=list.querySelector('.reciente');
+      if(c) c.classList.remove('reciente');
+    }, 60000);
   }
 
   async function guardarConfig() {
-    const nombre = document.getElementById('config-nombre').value.trim();
-    if (!nombre) return;
-    await fetch('/api/me', { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({nombre_negocio: nombre}) });
-    document.getElementById('nombre-negocio').textContent = nombre;
+    const nombre=document.getElementById('config-nombre').value.trim();
+    if(!nombre)return;
+    await fetch('/api/me',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({nombre_negocio:nombre})});
+    document.getElementById('nombre-negocio').textContent=nombre;
     document.getElementById('modal-config').classList.remove('open');
   }
 
   async function logout() {
-    await fetch('/api/logout', { method:'POST' });
-    window.location.href = '/';
+    await fetch('/api/logout',{method:'POST'});
+    window.location.href='/';
   }
 
   init();
