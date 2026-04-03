@@ -11,8 +11,6 @@
   body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}
   body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(108,47,173,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(108,47,173,0.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
   .wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:20px 16px 60px}
-
-  /* Header */
   header{display:flex;align-items:center;gap:12px;margin-bottom:24px;flex-wrap:wrap}
   .logo{width:44px;height:44px;background:var(--yape);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
   .logo svg{width:22px;height:22px;fill:white}
@@ -22,8 +20,6 @@
   .nbtn{font-size:11px;font-family:var(--mono);color:var(--muted);border:1px solid var(--border2);padding:6px 10px;border-radius:8px;background:transparent;cursor:pointer;text-decoration:none;white-space:nowrap;transition:all 0.15s}
   .nbtn:hover{border-color:var(--border);color:var(--text)}
   .nbtn.p{background:var(--yape);border-color:var(--yape);color:white}
-
-  /* Stats */
   .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:24px}
   @media(min-width:600px){.stats{grid-template-columns:repeat(4,1fr)}}
   .stat{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;position:relative;overflow:hidden}
@@ -32,17 +28,13 @@
   .stat-value{font-size:20px;font-weight:700;color:var(--green);line-height:1}
   .stat-value.w{color:var(--text)}
   .stat-sub{font-size:11px;color:var(--muted);margin-top:4px;font-family:var(--mono)}
-
-  /* Section */
   .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px}
   .section-title{font-size:14px;font-weight:500}
   .section-sub{font-size:11px;color:var(--muted);font-family:var(--mono)}
-
-  /* Cards de usuario - layout vertical en lugar de tabla */
   .usuarios-grid{display:flex;flex-direction:column;gap:10px}
   .usuario-card{background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:16px}
   .usuario-card:hover{border-color:var(--border)}
-  .usuario-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+  .usuario-top{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
   .usuario-avatar{width:40px;height:40px;border-radius:50%;background:var(--yape);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:white;flex-shrink:0}
   .usuario-info{flex:1;min-width:0}
   .usuario-nombre{font-size:15px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -52,13 +44,11 @@
   .badge.inactivo{background:var(--red-dim);color:var(--red)}
   .badge.basico{background:var(--border2);color:var(--muted)}
   .badge.pro{background:var(--amber-dim);color:var(--amber)}
-
   .usuario-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
   .ustat{background:var(--surface2);border-radius:8px;padding:8px 10px;text-align:center}
   .ustat-label{font-size:10px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px}
   .ustat-value{font-size:14px;font-weight:600;color:var(--text)}
   .ustat-value.green{color:var(--green)}
-
   .usuario-actions{display:flex;gap:8px;flex-wrap:wrap}
   .abtn{padding:6px 12px;border-radius:8px;font-size:12px;font-family:var(--mono);cursor:pointer;border:1px solid var(--border2);background:transparent;color:var(--muted);transition:all 0.15s;white-space:nowrap}
   .abtn:hover{border-color:var(--border);color:var(--text)}
@@ -66,6 +56,37 @@
   .abtn.danger:hover{background:var(--red-dim)}
   .abtn.success{border-color:rgba(34,217,143,0.3);color:var(--green)}
   .abtn.primary{background:var(--yape);border-color:var(--yape);color:white}
+  .abtn.amber{border-color:rgba(245,158,11,0.3);color:var(--amber)}
+
+  /* Movimientos panel */
+  .movimientos-panel{display:none;margin-top:16px;border-top:1px solid var(--border2);padding-top:16px}
+  .movimientos-panel.open{display:block}
+  .mov-filtros{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+  .mov-btn-f{padding:5px 12px;border-radius:16px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-size:11px;font-family:var(--mono);cursor:pointer;transition:all 0.2s}
+  .mov-btn-f.active{background:var(--yape);border-color:var(--yape);color:white}
+  .mov-fecha{background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:11px;padding:5px 8px;border-radius:8px;outline:none}
+  .mov-resumen{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+  .mov-stat{background:var(--surface2);border-radius:8px;padding:8px;text-align:center}
+  .mov-stat-label{font-size:10px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px}
+  .mov-stat-value{font-size:16px;font-weight:700;color:var(--green)}
+  .mov-stat-value.w{color:var(--text)}
+  .mov-lista{display:flex;flex-direction:column;gap:6px;max-height:400px;overflow-y:auto}
+  .mov-item{background:var(--surface2);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:12px}
+  .mov-avatar{width:34px;height:34px;border-radius:50%;background:var(--yape);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#C89EF5;flex-shrink:0}
+  .mov-info{flex:1;min-width:0}
+  .mov-nombre{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mov-hora{font-size:11px;color:var(--muted);font-family:var(--mono)}
+  .mov-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+  .mov-monto{font-size:14px;font-weight:700;color:var(--green);font-family:var(--mono)}
+  .mov-codigo{display:flex;align-items:center;gap:4px;background:var(--amber-dim);border:1px solid rgba(245,158,11,0.2);border-radius:5px;padding:2px 6px;font-size:11px;font-family:var(--mono);color:var(--amber)}
+  .mov-empty{text-align:center;padding:24px;color:var(--muted);font-size:13px}
+  .mov-loader{display:flex;align-items:center;justify-content:center;gap:5px;padding:24px}
+  .mov-loader span{width:5px;height:5px;border-radius:50%;background:var(--yape);animation:b 1.2s infinite ease-in-out}
+  .mov-loader span:nth-child(2){animation-delay:.15s}.mov-loader span:nth-child(3){animation-delay:.3s}
+
+  /* Export btn */
+  .export-btn{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-size:11px;font-family:var(--mono);cursor:pointer;margin-top:10px}
+  .export-btn:hover{border-color:var(--border);color:var(--text)}
 
   /* Modal */
   .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100;align-items:center;justify-content:center;padding:20px}
@@ -82,8 +103,6 @@
   .mcancel{background:transparent;border:1px solid var(--border2);color:var(--muted)}
   .msave{background:var(--yape);border:1px solid var(--yape);color:white}
   .merror{background:var(--red-dim);border:1px solid rgba(248,113,113,0.3);border-radius:8px;padding:10px;font-size:13px;color:var(--red);margin-bottom:14px;display:none}
-
-  /* Token box */
   .token-box{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:12px;font-family:var(--mono);font-size:12px;color:#C89EF5;word-break:break-all;cursor:pointer;margin-top:8px}
   .token-box:hover{border-color:var(--border)}
 
@@ -132,7 +151,7 @@
     </div>
     <div class="mactions">
       <button class="mcancel" onclick="cerrarModal()">Cancelar</button>
-      <button class="msave" onclick="guardarUsuario()">Crear usuario</button>
+      <button class="msave" id="btn-guardar" onclick="guardarUsuario()">Crear usuario</button>
     </div>
   </div>
 </div>
@@ -141,24 +160,29 @@
 <div class="overlay" id="modal-token">
   <div class="modal">
     <h3>Endpoint para la app</h3>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:8px">URL para configurar en Macrodroid o la app:</p>
-    <div class="token-box" id="token-url" onclick="copiarToken()">cargando...</div>
-    <p style="font-size:11px;color:var(--muted);margin-top:8px;font-family:var(--mono)">Toca para copiar</p>
-    <br>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:4px">Solo el token (para la app APK):</p>
-    <div class="token-box" id="token-solo" onclick="copiarTokenSolo()">cargando...</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:8px">URL completa para Macrodroid:</p>
+    <div class="token-box" id="token-url" onclick="copiarToken('token-url')">cargando...</div>
+    <p style="font-size:11px;color:var(--muted);margin-top:12px;margin-bottom:4px">Solo el token (para la app APK):</p>
+    <div class="token-box" id="token-solo" onclick="copiarToken('token-solo')">cargando...</div>
+    <p style="font-size:11px;color:var(--muted);margin-top:6px">Toca cualquiera para copiar</p>
     <div class="mactions"><button class="msave" onclick="document.getElementById('modal-token').classList.remove('open')">Cerrar</button></div>
   </div>
 </div>
 
 <script>
   let editandoId = null;
+  let movPeriodos = {}; // periodo activo por usuario
+  let movFechas = {};   // fecha activa por usuario
+  let movDatos = {};    // datos cargados por usuario
+
+  function initials(n){ return (n||'U').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase(); }
+  function fmt(m){ return 'S/ '+parseFloat(m||0).toFixed(2); }
 
   async function checkAdmin() {
     const res = await fetch('/api/me');
     if (!res.ok) { window.location.href='/'; return; }
     const u = await res.json();
-    if (u.rol !== 'admin') { window.location.href='/dashboard'; return; }
+    if (u.rol!=='admin') { window.location.href='/dashboard'; return; }
     document.getElementById('admin-email').textContent = u.email;
   }
 
@@ -167,22 +191,20 @@
       const s = await fetch('/api/admin/stats').then(r=>r.json());
       document.getElementById('stats').innerHTML = `
         <div class="stat"><div class="stat-label">Usuarios</div><div class="stat-value w">${s.usuarios}</div><div class="stat-sub">${s.activos} activos</div></div>
-        <div class="stat"><div class="stat-label">Pagos hoy</div><div class="stat-value">${s.pagosHoy.cantidad}</div><div class="stat-sub">S/ ${parseFloat(s.pagosHoy.total).toFixed(2)}</div></div>
-        <div class="stat"><div class="stat-label">Este mes</div><div class="stat-value">${s.pagosMes.cantidad}</div><div class="stat-sub">S/ ${parseFloat(s.pagosMes.total).toFixed(2)}</div></div>
-        <div class="stat"><div class="stat-label">Total histórico</div><div class="stat-value">${s.pagosTotal.cantidad}</div><div class="stat-sub">S/ ${parseFloat(s.pagosTotal.total).toFixed(2)}</div></div>
+        <div class="stat"><div class="stat-label">Pagos hoy</div><div class="stat-value">${s.pagosHoy.cantidad}</div><div class="stat-sub">${fmt(s.pagosHoy.total)}</div></div>
+        <div class="stat"><div class="stat-label">Este mes</div><div class="stat-value">${s.pagosMes.cantidad}</div><div class="stat-sub">${fmt(s.pagosMes.total)}</div></div>
+        <div class="stat"><div class="stat-label">Total histórico</div><div class="stat-value">${s.pagosTotal.cantidad}</div><div class="stat-sub">${fmt(s.pagosTotal.total)}</div></div>
       `;
     } catch {}
   }
 
-  function initials(name) { return (name||'U').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase(); }
-
   async function cargarUsuarios() {
     try {
       const usuarios = await fetch('/api/admin/usuarios').then(r=>r.json());
-      document.getElementById('usuarios-count').textContent = usuarios.length + ' usuarios registrados';
-      if (!usuarios.length) { document.getElementById('usuarios-grid').innerHTML = '<div class="empty">Sin usuarios — crea el primero</div>'; return; }
-      document.getElementById('usuarios-grid').innerHTML = usuarios.map(u => `
-        <div class="usuario-card">
+      document.getElementById('usuarios-count').textContent = usuarios.length+' usuarios registrados';
+      if (!usuarios.length) { document.getElementById('usuarios-grid').innerHTML='<div class="empty">Sin usuarios — crea el primero</div>'; return; }
+      document.getElementById('usuarios-grid').innerHTML = usuarios.map(u=>`
+        <div class="usuario-card" id="card-${u.id}">
           <div class="usuario-top">
             <div class="usuario-avatar">${initials(u.nombre_negocio)}</div>
             <div class="usuario-info">
@@ -194,20 +216,105 @@
           </div>
           <div class="usuario-stats">
             <div class="ustat"><div class="ustat-label">Pagos</div><div class="ustat-value">${u.total_pagos}</div></div>
-            <div class="ustat"><div class="ustat-label">Total</div><div class="ustat-value green">S/ ${parseFloat(u.total_monto).toFixed(2)}</div></div>
-            <div class="ustat"><div class="ustat-label">Último pago</div><div class="ustat-value" style="font-size:11px">${u.ultimo_pago ? new Date(u.ultimo_pago).toLocaleDateString('es-PE') : '—'}</div></div>
+            <div class="ustat"><div class="ustat-label">Total</div><div class="ustat-value green">${fmt(u.total_monto)}</div></div>
+            <div class="ustat"><div class="ustat-label">Último pago</div><div class="ustat-value" style="font-size:11px">${u.ultimo_pago?new Date(u.ultimo_pago).toLocaleDateString('es-PE'):'—'}</div></div>
           </div>
           <div class="usuario-actions">
-            <button class="abtn primary" onclick="verToken('${u.token}')">Ver URL / Token</button>
+            <button class="abtn amber" onclick="toggleMovimientos(${u.id})">Ver movimientos</button>
+            <button class="abtn primary" onclick="verToken('${u.token}')">URL / Token</button>
             <button class="abtn" onclick='editarUsuario(${JSON.stringify(u).replace(/'/g,"&#39;")})'>Editar</button>
             <button class="abtn ${u.activo?'danger':'success'}" onclick="toggleActivo(${u.id},${u.activo})">${u.activo?'Desactivar':'Activar'}</button>
             <button class="abtn danger" onclick="eliminarUsuario(${u.id},'${u.nombre_negocio.replace(/'/g,"\\'")}')">Eliminar</button>
           </div>
+          <div class="movimientos-panel" id="mov-${u.id}">
+            <!-- Se llena dinámicamente -->
+          </div>
         </div>`).join('');
-    } catch(e) { document.getElementById('usuarios-grid').innerHTML = '<div class="empty">Error al cargar usuarios</div>'; }
+    } catch { document.getElementById('usuarios-grid').innerHTML='<div class="empty">Error al cargar</div>'; }
   }
 
   function cargarTodo() { cargarStats(); cargarUsuarios(); }
+
+  async function toggleMovimientos(uid) {
+    const panel = document.getElementById('mov-'+uid);
+    const isOpen = panel.classList.contains('open');
+    if (isOpen) { panel.classList.remove('open'); return; }
+    panel.classList.add('open');
+    if (!movPeriodos[uid]) movPeriodos[uid] = 'dia';
+    await renderMovimientos(uid);
+  }
+
+  async function renderMovimientos(uid) {
+    const panel = document.getElementById('mov-'+uid);
+    const periodo = movPeriodos[uid] || 'dia';
+    const fecha   = movFechas[uid] || '';
+
+    panel.innerHTML = `
+      <div class="mov-filtros">
+        ${['dia','semana','mes','anio','general'].map((p,i)=>`
+          <button class="mov-btn-f ${periodo===p?'active':''}" onclick="setMovPeriodo(${uid},'${p}')">${['Hoy','7 días','Mes','Año','Todo'][i]}</button>
+        `).join('')}
+        ${periodo==='dia'?`<input type="date" class="mov-fecha" id="mov-fecha-${uid}" value="${fecha||new Date().toISOString().slice(0,10)}" onchange="setMovFecha(${uid},this.value)">`:'' }
+      </div>
+      <div id="mov-content-${uid}"><div class="mov-loader"><span></span><span></span><span></span></div></div>
+    `;
+
+    let url = `/api/admin/usuarios/${uid}/pagos?periodo=${periodo}`;
+    if (periodo==='dia' && fecha) url += `&fecha=${fecha.split('-').reverse().join('/')}`;
+    else if (periodo==='dia') url += `&fecha=${new Date().toLocaleDateString('es-PE')}`;
+
+    try {
+      const data = await fetch(url).then(r=>r.json());
+      movDatos[uid] = data.pagos;
+      const content = document.getElementById('mov-content-'+uid);
+      if (!content) return;
+      content.innerHTML = `
+        <div class="mov-resumen">
+          <div class="mov-stat"><div class="mov-stat-label">Total</div><div class="mov-stat-value">${fmt(data.total)}</div></div>
+          <div class="mov-stat"><div class="mov-stat-label">Pagos</div><div class="mov-stat-value w">${data.cantidad}</div></div>
+          <div class="mov-stat"><div class="mov-stat-label">Promedio</div><div class="mov-stat-value">${data.cantidad>0?fmt(data.total/data.cantidad):fmt(0)}</div></div>
+        </div>
+        <div class="mov-lista">
+          ${data.pagos.length===0?'<div class="mov-empty">Sin pagos en este período</div>':
+            data.pagos.map(p=>`
+              <div class="mov-item">
+                <div class="mov-avatar">${initials(p.nombre)}</div>
+                <div class="mov-info">
+                  <div class="mov-nombre">${p.nombre||'Pago recibido'}</div>
+                  <div class="mov-hora">${p.fecha||''} ${p.hora||''}</div>
+                </div>
+                <div class="mov-right">
+                  <div class="mov-monto">+${fmt(p.monto)}</div>
+                  ${p.codigo?`<div class="mov-codigo">🛡 ${p.codigo}</div>`:''}
+                </div>
+              </div>`).join('')}
+        </div>
+        <button class="export-btn" onclick="exportarCSV(${uid})">↓ Exportar CSV</button>
+      `;
+    } catch { document.getElementById('mov-content-'+uid).innerHTML='<div class="mov-empty">Error al cargar</div>'; }
+  }
+
+  async function setMovPeriodo(uid, periodo) {
+    movPeriodos[uid] = periodo;
+    await renderMovimientos(uid);
+  }
+
+  async function setMovFecha(uid, fecha) {
+    movFechas[uid] = fecha;
+    await renderMovimientos(uid);
+  }
+
+  function exportarCSV(uid) {
+    const datos = movDatos[uid];
+    if (!datos || !datos.length) return;
+    const csv = [['Fecha','Hora','Nombre','Codigo','Monto'].join(','),
+      ...datos.map(p=>[p.fecha||'',p.hora||'','"'+(p.nombre||'').replace(/"/g,'""')+'"',p.codigo||'',parseFloat(p.monto||0).toFixed(2)].join(','))
+    ].join('\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+    a.download = `movimientos-usuario-${uid}.csv`;
+    a.click();
+  }
 
   function abrirModalCrear() {
     editandoId = null;
@@ -219,7 +326,7 @@
     document.getElementById('u-pass').value = '';
     document.getElementById('u-plan').value = 'basico';
     document.getElementById('pass-label').textContent = 'Contraseña (mínimo 6 caracteres)';
-    document.querySelector('.msave').textContent = 'Crear usuario';
+    document.getElementById('btn-guardar').textContent = 'Crear usuario';
     document.getElementById('modal-usuario').classList.add('open');
   }
 
@@ -232,77 +339,70 @@
     document.getElementById('u-email').disabled = true;
     document.getElementById('u-pass').value = '';
     document.getElementById('u-plan').value = u.plan;
-    document.getElementById('pass-label').textContent = 'Nueva contraseña (dejar vacío para no cambiar)';
-    document.querySelector('.msave').textContent = 'Guardar cambios';
+    document.getElementById('pass-label').textContent = 'Nueva contraseña (vacío = no cambiar)';
+    document.getElementById('btn-guardar').textContent = 'Guardar cambios';
     document.getElementById('modal-usuario').classList.add('open');
   }
 
   function cerrarModal() { document.getElementById('modal-usuario').classList.remove('open'); }
 
   async function guardarUsuario() {
-    const nombre = document.getElementById('u-nombre').value.trim();
-    const email  = document.getElementById('u-email').value.trim();
-    const pass   = document.getElementById('u-pass').value;
-    const plan   = document.getElementById('u-plan').value;
-    const errBox = document.getElementById('modal-error');
-    errBox.style.display = 'none';
-    if (!nombre) { errBox.textContent='Nombre requerido'; errBox.style.display='block'; return; }
+    const nombre=document.getElementById('u-nombre').value.trim();
+    const email=document.getElementById('u-email').value.trim();
+    const pass=document.getElementById('u-pass').value;
+    const plan=document.getElementById('u-plan').value;
+    const errBox=document.getElementById('modal-error');
+    errBox.style.display='none';
+    if(!nombre){errBox.textContent='Nombre requerido';errBox.style.display='block';return;}
     try {
       let res;
-      if (editandoId) {
-        const body = {nombre_negocio:nombre, plan};
-        if (pass) { if(pass.length<6){errBox.textContent='Contraseña mínimo 6 caracteres';errBox.style.display='block';return;} body.password=pass; }
-        res = await fetch('/api/admin/usuarios/'+editandoId, {method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      if(editandoId){
+        const body={nombre_negocio:nombre,plan};
+        if(pass){if(pass.length<6){errBox.textContent='Contraseña mínimo 6 caracteres';errBox.style.display='block';return;}body.password=pass;}
+        res=await fetch('/api/admin/usuarios/'+editandoId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
       } else {
-        if (!email){errBox.textContent='Email requerido';errBox.style.display='block';return;}
-        if (pass.length<6){errBox.textContent='Contraseña mínimo 6 caracteres';errBox.style.display='block';return;}
-        res = await fetch('/api/admin/usuarios', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:pass,nombre_negocio:nombre,plan})});
+        if(!email){errBox.textContent='Email requerido';errBox.style.display='block';return;}
+        if(pass.length<6){errBox.textContent='Contraseña mínimo 6 caracteres';errBox.style.display='block';return;}
+        res=await fetch('/api/admin/usuarios',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:pass,nombre_negocio:nombre,plan})});
       }
-      const data = await res.json();
-      if (!res.ok){errBox.textContent=data.error||'Error';errBox.style.display='block';return;}
+      const data=await res.json();
+      if(!res.ok){errBox.textContent=data.error||'Error';errBox.style.display='block';return;}
       cerrarModal(); cargarTodo();
-    } catch { errBox.textContent='Error de conexión'; errBox.style.display='block'; }
+    } catch{errBox.textContent='Error de conexión';errBox.style.display='block';}
   }
 
-  async function toggleActivo(id, activo) {
-    if (!confirm(`¿${activo?'Desactivar':'Activar'} este usuario?`)) return;
-    await fetch('/api/admin/usuarios/'+id, {method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({activo:!activo})});
+  async function toggleActivo(id,activo){
+    if(!confirm(`¿${activo?'Desactivar':'Activar'} este usuario?`))return;
+    await fetch('/api/admin/usuarios/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({activo:!activo})});
     cargarTodo();
   }
 
-  async function eliminarUsuario(id, nombre) {
-    if (!confirm(`¿Eliminar a "${nombre}" y todos sus pagos? No se puede deshacer.`)) return;
-    await fetch('/api/admin/usuarios/'+id, {method:'DELETE'});
+  async function eliminarUsuario(id,nombre){
+    if(!confirm(`¿Eliminar a "${nombre}" y todos sus pagos?`))return;
+    await fetch('/api/admin/usuarios/'+id,{method:'DELETE'});
     cargarTodo();
   }
 
-  function verToken(token) {
-    const url = window.location.origin + '/yape/' + token;
-    document.getElementById('token-url').textContent = url;
-    document.getElementById('token-solo').textContent = token;
+  function verToken(token){
+    const url=window.location.origin+'/yape/'+token;
+    document.getElementById('token-url').textContent=url;
+    document.getElementById('token-solo').textContent=token;
     document.getElementById('modal-token').classList.add('open');
   }
 
-  function copiarToken() {
-    const txt = document.getElementById('token-url').textContent;
+  function copiarToken(id){
+    const txt=document.getElementById(id).textContent;
     navigator.clipboard.writeText(txt).then(()=>{
-      document.getElementById('token-url').textContent='¡URL copiada!';
-      setTimeout(()=>document.getElementById('token-url').textContent=txt,1500);
+      const orig=document.getElementById(id).textContent;
+      document.getElementById(id).textContent='¡Copiado!';
+      setTimeout(()=>document.getElementById(id).textContent=orig,1500);
     });
   }
 
-  function copiarTokenSolo() {
-    const txt = document.getElementById('token-solo').textContent;
-    navigator.clipboard.writeText(txt).then(()=>{
-      document.getElementById('token-solo').textContent='¡Token copiado!';
-      setTimeout(()=>document.getElementById('token-solo').textContent=txt,1500);
-    });
-  }
-
-  async function logout() { await fetch('/api/logout',{method:'POST'}); window.location.href='/'; }
+  async function logout(){await fetch('/api/logout',{method:'POST'});window.location.href='/';}
 
   checkAdmin().then(()=>cargarTodo());
-  setInterval(cargarStats, 30000);
+  setInterval(cargarStats,30000);
 </script>
 </body>
 </html>
