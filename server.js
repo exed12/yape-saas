@@ -98,7 +98,7 @@ function adminMiddleware(req,res,next) {
   next();
 }
 
-// ── AUTH ─────────────────────────────────────────────────────────────────────
+// ── AUTH ──────────────────────────────────────────────────────────────────────
 app.post('/api/login', async (req,res) => {
   const {email,password}=req.body;
   if(!email||!password) return res.status(400).json({error:'Campos requeridos'});
@@ -130,13 +130,12 @@ app.put('/api/me',authMiddleware,async(req,res)=>{
 });
 
 // ── ADMIN ─────────────────────────────────────────────────────────────────────
-// Stats generales
 app.get('/api/admin/stats',authMiddleware,adminMiddleware,async(req,res)=>{
   try {
-    const usuarios=await pool.query('SELECT COUNT(*) FROM usuarios WHERE rol!=\'admin\'');
-    const activos=await pool.query('SELECT COUNT(*) FROM usuarios WHERE rol!=\'admin\' AND activo=true');
+    const usuarios=await pool.query("SELECT COUNT(*) FROM usuarios WHERE rol!='admin'");
+    const activos=await pool.query("SELECT COUNT(*) FROM usuarios WHERE rol!='admin' AND activo=true");
     const pagosHoy=await pool.query('SELECT COUNT(*),COALESCE(SUM(monto),0) as total FROM pagos WHERE fecha=$1',[fechaHoyPeru()]);
-    const pagosMes=await pool.query("SELECT COUNT(*),COALESCE(SUM(monto),0) as total FROM pagos WHERE ts >= date_trunc('month',NOW())");
+    const pagosMes=await pool.query("SELECT COUNT(*),COALESCE(SUM(monto),0) as total FROM pagos WHERE ts>=date_trunc('month',NOW())");
     const pagosTotal=await pool.query('SELECT COUNT(*),COALESCE(SUM(monto),0) as total FROM pagos');
     res.json({
       usuarios:parseInt(usuarios.rows[0].count),
@@ -148,7 +147,6 @@ app.get('/api/admin/stats',authMiddleware,adminMiddleware,async(req,res)=>{
   } catch(e){console.error(e);res.status(500).json({error:'Error'});}
 });
 
-// Lista usuarios
 app.get('/api/admin/usuarios',authMiddleware,adminMiddleware,async(req,res)=>{
   try {
     const r=await pool.query(`
@@ -165,7 +163,6 @@ app.get('/api/admin/usuarios',authMiddleware,adminMiddleware,async(req,res)=>{
   } catch(e){console.error(e);res.status(500).json({error:'Error'});}
 });
 
-// Crear usuario
 app.post('/api/admin/usuarios',authMiddleware,adminMiddleware,async(req,res)=>{
   const {email,password,nombre_negocio,plan}=req.body;
   if(!email||!password||!nombre_negocio) return res.status(400).json({error:'Campos requeridos'});
@@ -184,7 +181,6 @@ app.post('/api/admin/usuarios',authMiddleware,adminMiddleware,async(req,res)=>{
   }
 });
 
-// Activar/desactivar usuario
 app.put('/api/admin/usuarios/:id',authMiddleware,adminMiddleware,async(req,res)=>{
   const {activo,plan,nombre_negocio,password}=req.body;
   try {
@@ -196,7 +192,6 @@ app.put('/api/admin/usuarios/:id',authMiddleware,adminMiddleware,async(req,res)=
   } catch(e){res.status(500).json({error:'Error'});}
 });
 
-// Eliminar usuario
 app.delete('/api/admin/usuarios/:id',authMiddleware,adminMiddleware,async(req,res)=>{
   try {
     await pool.query('DELETE FROM pagos WHERE usuario_id=$1',[req.params.id]);
@@ -205,21 +200,14 @@ app.delete('/api/admin/usuarios/:id',authMiddleware,adminMiddleware,async(req,re
   } catch(e){res.status(500).json({error:'Error'});}
 });
 
-// Pagos de un usuario (admin)
-app.get('/api/admin/usuarios/:id/pagos',authMiddleware,adminMiddleware,async(req,res)=>{
-  try {
-    const r=await pool.query('SELECT * FROM pagos WHERE usuario_id=$1 ORDER BY ts DESC LIMIT 100',[req.params.id]);
-    res.json(r.rows);
-  } catch(e){res.status(500).json({error:'Error'});}
-});
-
-// ── YAPE WEBHOOK ─────────────────────────────────────────────────────────────
+// ── YAPE WEBHOOK ──────────────────────────────────────────────────────────────
 app.post('/yape/:token',async(req,res)=>{
   try {
     const r=await pool.query('SELECT id FROM usuarios WHERE token=$1 AND activo=true',[req.params.token]);
     if(!r.rows[0]) return res.status(404).json({error:'Token inválido'});
     const {nombre,monto,codigo,textoOriginal}=extraerDatos(req.body);
-    const pago={id:Date.now(),usuario_id:r.rows[0].id,nombre,monto,codigo,texto_original:textoOriginal,hora:horaAhoraPeru(),fecha:fechaHoyPeru(),ts:new Date()};
+    const ahora=new Date();
+    const pago={id:Date.now(),usuario_id:r.rows[0].id,nombre,monto,codigo,texto_original:textoOriginal,hora:horaAhoraPeru(),fecha:fechaHoyPeru(),ts:ahora};
     await pool.query(
       'INSERT INTO pagos(id,usuario_id,nombre,monto,codigo,texto_original,hora,fecha,ts) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)',
       [pago.id,pago.usuario_id,pago.nombre,pago.monto,pago.codigo,pago.texto_original,pago.hora,pago.fecha,pago.ts]
