@@ -274,9 +274,8 @@ app.post('/yape/:token',async(req,res)=>{
   try {
     const r=await pool.query('SELECT id FROM usuarios WHERE token=$1 AND activo=true',[req.params.token]);
     if(!r.rows[0]) return res.status(404).json({error:'Token inválido'});
-    const {nombre,monto,codigo,textoOriginal}=extraerDatos(req.body);
-    const ahora=new Date();
     const {nombre,monto,codigo,app,textoOriginal}=extraerDatos(req.body);
+    const ahora=new Date();
     const pago={id:Date.now(),usuario_id:r.rows[0].id,nombre,monto,codigo,app:app||'Yape',texto_original:textoOriginal,hora:horaAhoraPeru(),fecha:fechaHoyPeru(),ts:ahora};
     await pool.query(
       'INSERT INTO pagos(id,usuario_id,nombre,monto,codigo,app,texto_original,hora,fecha,ts) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)',
