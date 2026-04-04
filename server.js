@@ -84,9 +84,10 @@ function extraerDatos(body) {
   // Patrones Yape
   const pYape1=/^(.+?)\s+te\s+envi[oó]\s+un\s+pago\s+por\s+S\/\s*([\d,.]+)/i;
   const pYape2=/Yape!\s+(.+?)\s+te\s+envi[oó]\s+un\s+pago\s+por\s+S\/\s*([\d,.]+)/i;
-  // Patrones Plin
-  const pPlin1=/^(.+?)\s+te\s+ha\s+plineado\s+S\.?\/\s*([\d,.]+)/i;
-  const pPlin2=/plineado/i;
+  // Patrones Plin (Interbank y BBVA)
+  const pPlin1=/^(.+?)\s+te\s+ha\s+plineado\s+S\.?\/\s*([\d,.]+)/i;      // Interbank: "NOMBRE te ha plineado S./ 1.00"
+  const pPlin2=/^(.+?)\s+te\s+pline[oó]\s+S\/\.?\s*([\d,.]+)/i;           // BBVA: "NOMBRE te plineó S/. 1"
+  const pPlin3=/pline[oó]|plineado/i;
   // Monto genérico
   const pMonto=/S\.?\/\s*([\d,.]+)/i;
   // Nombre genérico
@@ -100,10 +101,12 @@ function extraerDatos(body) {
 
     const mc=texto.match(pCod); if(mc&&!codigo)codigo=mc[1];
 
-    // Detectar Plin
-    const mPlin=texto.match(pPlin1);
-    if(mPlin){nombre=nombre||mPlin[1].trim();monto=monto||parseFloat(mPlin[2].replace(',','.'));app='Plin';continue;}
-    if(texto.match(pPlin2)&&!nombre){app='Plin';}
+    // Detectar Plin (Interbank y BBVA)
+    const mPlin1=texto.match(pPlin1);
+    if(mPlin1){nombre=nombre||mPlin1[1].trim();monto=monto||parseFloat(mPlin1[2].replace(',','.'));app='Plin';continue;}
+    const mPlin2=texto.match(pPlin2);
+    if(mPlin2){nombre=nombre||mPlin2[1].trim();monto=monto||parseFloat(mPlin2[2].replace(',','.'));app='Plin';continue;}
+    if(texto.match(pPlin3)){app='Plin';}
 
     // Detectar Yape
     const mYape2=texto.match(pYape2);
