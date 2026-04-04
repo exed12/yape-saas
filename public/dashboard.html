@@ -50,6 +50,9 @@
   .codigo-badge svg{width:10px;height:10px;flex-shrink:0}
   .codigo-text{font-size:12px;font-family:var(--mono);font-weight:500;color:var(--amber);letter-spacing:1px}
   .sin-cod{font-size:10px;font-family:var(--mono);color:var(--muted);opacity:0.5}
+  .app-badge{font-size:9px;font-family:var(--mono);font-weight:600;padding:2px 7px;border-radius:4px;letter-spacing:0.5px}
+  .app-badge.yape{background:rgba(108,47,173,0.2);color:#C89EF5;border:1px solid rgba(108,47,173,0.3)}
+  .app-badge.plin{background:rgba(59,130,246,0.15);color:#60A5FA;border:1px solid rgba(59,130,246,0.3)}
   .empty{text-align:center;padding:48px 0}
   .empty-icon{width:56px;height:56px;border:2px dashed var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
   .empty p{color:var(--muted);font-size:14px}
@@ -223,6 +226,7 @@
       const cod = p.codigo
         ? `<div class="codigo-badge"><svg viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2.5"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg><span class="codigo-text">${p.codigo}</span></div>`
         : `<span class="sin-cod">sin cód.</span>`;
+      const appBadge = `<span class="app-badge ${(p.app||'Yape').toLowerCase()}">${p.app||'Yape'}</span>`;
       const badge = esNuevo
         ? '<span class="badge-nuevo">nuevo</span>'
         : i===0 ? '<span class="badge-reciente">último</span>' : '';
@@ -233,7 +237,7 @@
           <div class="pago-nombre">${p.nombre||'Pago recibido'}${badge}</div>
           <div class="pago-hora">${p.hora||''} — Pago recibido</div>
         </div>
-        <div class="pago-right"><div class="pago-monto">+${fmt(p.monto)}</div>${cod}</div>
+        <div class="pago-right">${appBadge}<div class="pago-monto">+${fmt(p.monto)}</div>${cod}</div>
       </div>`;
     }).join('');
 
