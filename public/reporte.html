@@ -6,7 +6,7 @@
 <title>Reportes — Yape Monitor</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root{--yape:#6C2FAD;--yape-light:#8B3FD9;--bg:#0D0B12;--surface:#14111E;--surface2:#1C1828;--border:rgba(108,47,173,0.2);--border2:rgba(255,255,255,0.06);--text:#F0EBF8;--muted:#8B7FA8;--green:#22D98F;--amber:#F59E0B;--amber-dim:rgba(245,158,11,0.12);--font:'Sora',sans-serif;--mono:'JetBrains Mono',monospace}
+  :root{--yape:#6C2FAD;--yape-light:#8B3FD9;--bg:#0D0B12;--surface:#14111E;--surface2:#1C1828;--border:rgba(108,47,173,0.2);--border2:rgba(255,255,255,0.06);--text:#F0EBF8;--muted:#8B7FA8;--green:#22D98F;--amber:#F59E0B;--amber-dim:rgba(245,158,11,0.12);--plin:#3B82F6;--font:'Sora',sans-serif;--mono:'JetBrains Mono',monospace}
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}
   body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(108,47,173,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(108,47,173,0.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
@@ -17,9 +17,23 @@
   .header-text h1{font-size:18px;font-weight:600}
   .header-text p{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:2px}
   .nav-btn{margin-left:auto;font-size:11px;font-family:var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--border2);padding:6px 10px;border-radius:8px}
-  .filtros{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+
+  /* Filtros período */
+  .filtros{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
   .btn-f{padding:7px 14px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-size:12px;font-family:var(--mono);cursor:pointer;transition:all 0.2s}
   .btn-f.active{background:var(--yape);border-color:var(--yape);color:white}
+
+  /* Filtros app */
+  .app-filtros{display:flex;gap:8px;margin-bottom:16px}
+  .btn-app{padding:5px 14px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-size:12px;font-family:var(--mono);cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:6px}
+  .btn-app.active-todos{background:var(--surface2);border-color:var(--border);color:var(--text)}
+  .btn-app.active-yape{background:rgba(108,47,173,0.2);border-color:var(--yape);color:#C89EF5}
+  .btn-app.active-plin{background:rgba(59,130,246,0.15);border-color:var(--plin);color:#60A5FA}
+  .dot{width:7px;height:7px;border-radius:50%}
+  .dot.yape{background:#C89EF5}
+  .dot.plin{background:#60A5FA}
+  .dot.todos{background:var(--muted)}
+
   .fecha-row{display:none;gap:10px;margin-bottom:16px;align-items:center;flex-wrap:wrap}
   .fecha-row.v{display:flex}
   .fecha-row label{font-size:12px;color:var(--muted);font-family:var(--mono)}
@@ -35,7 +49,6 @@
   .bars{display:flex;align-items:flex-end;gap:6px;height:80px}
   .bar-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;min-width:0}
   .bar{width:100%;background:var(--yape);border-radius:4px 4px 0 0;min-height:3px;transition:height 0.4s}
-  .bar:hover{background:var(--yape-light)}
   .bar-label{font-size:9px;font-family:var(--mono);color:var(--muted);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%}
   .bar-val{font-size:9px;font-family:var(--mono);color:var(--green);text-align:center}
   .section-label{font-size:10px;font-family:var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
@@ -48,6 +61,10 @@
   .td-monto{color:var(--green);font-family:var(--mono);font-weight:600;text-align:right}
   .td-cod{font-family:var(--mono);font-size:12px;color:var(--amber);text-align:center}
   .td-hora{font-family:var(--mono);font-size:11px;color:var(--muted)}
+  .td-app{text-align:center}
+  .app-badge{font-size:10px;font-family:var(--mono);font-weight:600;padding:2px 7px;border-radius:4px}
+  .app-badge.yape{background:rgba(108,47,173,0.2);color:#C89EF5;border:1px solid rgba(108,47,173,0.3)}
+  .app-badge.plin{background:rgba(59,130,246,0.15);color:#60A5FA;border:1px solid rgba(59,130,246,0.3)}
   .export-btn{display:flex;align-items:center;gap:8px;margin-top:16px;padding:10px 18px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--text);font-size:13px;cursor:pointer;transition:all 0.15s}
   .export-btn:hover{background:var(--surface2);border-color:var(--yape)}
   .export-btn svg{width:16px;height:16px}
@@ -66,12 +83,20 @@
     <a href="/dashboard" class="nav-btn">← Dashboard</a>
   </header>
 
+  <!-- Filtro período -->
   <div class="filtros">
     <button class="btn-f active" onclick="setPeriodo('dia')">Hoy</button>
     <button class="btn-f" onclick="setPeriodo('semana')">7 días</button>
     <button class="btn-f" onclick="setPeriodo('mes')">Este mes</button>
     <button class="btn-f" onclick="setPeriodo('anio')">Este año</button>
     <button class="btn-f" onclick="setPeriodo('general')">General</button>
+  </div>
+
+  <!-- Filtro app -->
+  <div class="app-filtros">
+    <button class="btn-app active-todos" id="fa-todos" onclick="setApp('todos')"><span class="dot todos"></span>Todos</button>
+    <button class="btn-app" id="fa-yape" onclick="setApp('yape')"><span class="dot yape"></span>Yape</button>
+    <button class="btn-app" id="fa-plin" onclick="setApp('plin')"><span class="dot plin"></span>Plin</button>
   </div>
 
   <div class="fecha-row" id="fecha-row">
@@ -103,11 +128,34 @@
 
 <script>
   let periodo = 'dia';
-  let datos = [];
+  let appFiltro = 'todos';
+  let todosLosDatos = [];
+  let datosFiltrados = [];
 
   async function checkAuth() {
     const res = await fetch('/api/me');
     if (!res.ok) window.location.href = '/';
+  }
+
+  function setApp(a) {
+    appFiltro = a;
+    document.getElementById('fa-todos').className = 'btn-app' + (a==='todos'?' active-todos':'');
+    document.getElementById('fa-yape').className  = 'btn-app' + (a==='yape'?' active-yape':'');
+    document.getElementById('fa-plin').className  = 'btn-app' + (a==='plin'?' active-plin':'');
+    aplicarFiltroApp();
+  }
+
+  function aplicarFiltroApp() {
+    if (appFiltro === 'todos') {
+      datosFiltrados = todosLosDatos;
+    } else {
+      datosFiltrados = todosLosDatos.filter(p => (p.app||'Yape').toLowerCase() === appFiltro);
+    }
+    const total = datosFiltrados.reduce((s,p)=>s+parseFloat(p.monto||0),0);
+    const cantidad = datosFiltrados.length;
+    const porDia = {};
+    datosFiltrados.forEach(p=>{porDia[p.fecha]=(porDia[p.fecha]||0)+parseFloat(p.monto||0);});
+    renderReporte({pagos:datosFiltrados, total, cantidad, porDia});
   }
 
   function setPeriodo(p) {
@@ -147,8 +195,8 @@
       const res=await fetch(url);
       if(!res.ok){if(res.status===401)window.location.href='/';return;}
       const data=await res.json();
-      datos=data.pagos||[];
-      renderReporte(data);
+      todosLosDatos = data.pagos||[];
+      aplicarFiltroApp();
     } catch { document.getElementById('tabla').innerHTML='<div class="empty">Error al cargar</div>'; }
   }
 
@@ -158,22 +206,49 @@
     document.getElementById('m-cant').textContent=cantidad;
     document.getElementById('m-prom').textContent='S/ '+prom.toFixed(2);
     const labels={dia:'Hoy',semana:'Últimos 7 días',mes:'Este mes',anio:'Este año',general:'Todos los tiempos'};
-    document.getElementById('subtitulo').textContent=labels[periodo]+' · '+cantidad+' pagos';
+    const appLabel = appFiltro==='todos'?'':` · solo ${appFiltro.charAt(0).toUpperCase()+appFiltro.slice(1)}`;
+    document.getElementById('subtitulo').textContent=labels[periodo]+appLabel+' · '+cantidad+' pagos';
     const cb=document.getElementById('chart-box');
     if(periodo!=='dia'&&Object.keys(porDia||{}).length>1){cb.style.display='block';renderChart(porDia);}else cb.style.display='none';
     if(!pagos||pagos.length===0){document.getElementById('tabla').innerHTML='<div class="empty">Sin pagos en este período</div>';return;}
-    document.getElementById('tabla').innerHTML=`<table><thead><tr><th>Fecha</th><th>Hora</th><th>Nombre</th><th style="text-align:center">Cód.</th><th style="text-align:right">Monto</th></tr></thead><tbody>${pagos.map(p=>`<tr><td class="td-hora">${p.fecha||''}</td><td class="td-hora">${p.hora||''}</td><td>${p.nombre||'—'}</td><td class="td-cod">${p.codigo||'—'}</td><td class="td-monto">+S/ ${parseFloat(p.monto||0).toFixed(2)}</td></tr>`).join('')}</tbody></table>`;
+    document.getElementById('tabla').innerHTML=`<table>
+      <thead><tr>
+        <th>Fecha</th><th>Hora</th><th>Nombre</th>
+        <th style="text-align:center">App</th>
+        <th style="text-align:center">Cód.</th>
+        <th style="text-align:right">Monto</th>
+      </tr></thead>
+      <tbody>${pagos.map(p=>{
+        const appN = p.app||'Yape';
+        return `<tr>
+          <td class="td-hora">${p.fecha||''}</td>
+          <td class="td-hora">${p.hora||''}</td>
+          <td>${p.nombre||'—'}</td>
+          <td class="td-app"><span class="app-badge ${appN.toLowerCase()}">${appN}</span></td>
+          <td class="td-cod">${p.codigo||'—'}</td>
+          <td class="td-monto">+S/ ${parseFloat(p.monto||0).toFixed(2)}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>`;
   }
 
   function renderChart(porDia) {
     const dias=Object.keys(porDia).sort(), max=Math.max(...Object.values(porDia));
-    document.getElementById('bars').innerHTML=dias.map(d=>{const v=porDia[d],pct=max>0?(v/max)*100:0,lbl=d.split('/').slice(0,2).join('/');return`<div class="bar-col"><div class="bar-val">S/${parseFloat(v).toFixed(0)}</div><div class="bar" style="height:${Math.max(pct*0.6,3)}px"></div><div class="bar-label">${lbl}</div></div>`;}).join('');
+    document.getElementById('bars').innerHTML=dias.map(d=>{
+      const v=porDia[d],pct=max>0?(v/max)*100:0,lbl=d.split('/').slice(0,2).join('/');
+      return`<div class="bar-col"><div class="bar-val">S/${parseFloat(v).toFixed(0)}</div><div class="bar" style="height:${Math.max(pct*0.6,3)}px"></div><div class="bar-label">${lbl}</div></div>`;
+    }).join('');
   }
 
   function exportCSV() {
-    if(!datos.length)return;
-    const csv=[['Fecha','Hora','Nombre','Codigo','Monto'].join(','),...datos.map(p=>[p.fecha||'',p.hora||'','"'+(p.nombre||'').replace(/"/g,'""')+'"',p.codigo||'',parseFloat(p.monto||0).toFixed(2)].join(','))].join('\n');
-    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='reporte-yape-'+periodo+'.csv';a.click();
+    if(!datosFiltrados.length)return;
+    const csv=[['Fecha','Hora','Nombre','App','Codigo','Monto'].join(','),
+      ...datosFiltrados.map(p=>[p.fecha||'',p.hora||'','"'+(p.nombre||'').replace(/"/g,'""')+'"',p.app||'Yape',p.codigo||'',parseFloat(p.monto||0).toFixed(2)].join(','))
+    ].join('\n');
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+    a.download=`reporte-${appFiltro}-${periodo}.csv`;
+    a.click();
   }
 
   checkAuth();
