@@ -54,9 +54,6 @@
   .empty-icon{width:56px;height:56px;border:2px dashed var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
   .empty p{color:var(--muted);font-size:14px}
   .empty small{display:block;color:var(--muted);font-size:11px;font-family:var(--mono);margin-top:6px;opacity:0.6}
-  .endpoint-box{margin-top:28px;background:var(--surface2);border:1px solid var(--border2);border-radius:12px;padding:14px 16px}
-  .endpoint-box p{font-size:10px;font-family:var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px}
-  .endpoint-box code{font-size:12px;font-family:var(--mono);color:#C89EF5;word-break:break-all}
   .loader{display:flex;align-items:center;justify-content:center;gap:5px;padding:32px}
   .loader span{width:6px;height:6px;border-radius:50%;background:var(--yape);animation:bounce 1.2s infinite ease-in-out}
   .loader span:nth-child(2){animation-delay:.15s}.loader span:nth-child(3){animation-delay:.3s}
@@ -103,10 +100,6 @@
     <div class="loader"><span></span><span></span><span></span></div>
   </div>
 
-  <div class="endpoint-box">
-    <p>Tu endpoint para Macrodroid (POST)</p>
-    <code id="endpoint-url">cargando...</code>
-  </div>
 </div>
 
 <div class="modal-overlay" id="modal-config">
@@ -182,7 +175,6 @@
       const user = await res.json();
       document.getElementById('nombre-negocio').textContent = user.nombre_negocio;
       document.getElementById('config-nombre').value = user.nombre_negocio;
-      document.getElementById('endpoint-url').textContent = window.location.origin+'/yape/'+user.token;
       fetchPagos();
       setInterval(fetchPagos, 5000);
     } catch { window.location.href='/'; }
