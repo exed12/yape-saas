@@ -273,8 +273,19 @@ app.post('/yape/:token',async(req,res)=>{
     const r=await pool.query('SELECT id FROM usuarios WHERE token=$1 AND activo=true',[req.params.token]);
     if(!r.rows[0]) return res.status(404).json({error:'Token inválido'});
     const datos=extraerDatos(req.body);
-    if(!datos) return res.json({ok:true,ignorado:true,razon:'No es un pago real de Yape/Plin'});
-    const {nombre,monto,codigo,app,textoOriginal}=datos;
+    // Permitir pago de prueba: campo prueba:true, monto 0.00, o texto que contenga "prueba"
+    const esPrueba = req.body.prueba === true || req.body.prueba === 'true'
+      || req.body.monto === '0.00' || req.body.monto === 0
+      || String(req.body.texto||'').toLowerCase().includes('prueba')
+      || String(req.body.nombre||'').toLowerCase().includes('prueba');
+    if(!datos && !esPrueba) return res.json({ok:true,ignorado:true,razon:'No es un pago real de Yape/Plin'});
+    const {nombre,monto,codigo,app,textoOriginal} = datos || {
+      nombre: req.body.nombre || 'Pago de Prueba',
+      monto: 0,
+      codigo: null,
+      app: 'Yape',
+      textoOriginal: req.body.texto || 'Prueba desde app'
+    };
     const ahora=new Date();
     const pago={id:Date.now(),usuario_id:r.rows[0].id,nombre,monto,codigo,app:app||'Yape',texto_original:textoOriginal,hora:horaAhoraPeru(),fecha:fechaHoyPeru(),ts:ahora};
     await pool.query(
