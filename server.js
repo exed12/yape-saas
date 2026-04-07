@@ -80,19 +80,14 @@ function extraerDatos(body) {
   const textoCompleto = body.texto||body.monto||body.nombre||'';
   const titulo = body.nombre||'';
   let nombre=null,monto=null,codigo=null,app='Yape';
+  let esPagoReal = false; // Solo guardar si matchea patrón de pago real
 
-  // Patrones Yape
+  // Patrones Yape (pago real)
   const pYape1=/^(.+?)\s+te\s+envi[oó]\s+un\s+pago\s+por\s+S\/\s*([\d,.]+)/i;
   const pYape2=/Yape!\s+(.+?)\s+te\s+envi[oó]\s+un\s+pago\s+por\s+S\/\s*([\d,.]+)/i;
-  // Patrones Plin (Interbank y BBVA)
-  const pPlin1=/^(.+?)\s+te\s+ha\s+plineado\s+S\.?\/\s*([\d,.]+)/i;      // Interbank: "NOMBRE te ha plineado S./ 1.00"
-  const pPlin2=/^(.+?)\s+te\s+pline[oó]\s+S\/\.?\s*([\d,.]+)/i;           // BBVA: "NOMBRE te plineó S/. 1"
-  const pPlin3=/pline[oó]|plineado/i;
-  // Monto genérico
-  const pMonto=/S\.?\/\s*([\d,.]+)/i;
-  // Nombre genérico
-  const pNombre=/^(.+?)\s+te\s+ha/i;
-  const pNombre2=/^(.+?)\s+te\s+envi/i;
+  // Patrones Plin (pago real)
+  const pPlin1=/^(.+?)\s+te\s+ha\s+plineado\s+S\.?\/\s*([\d,.]+)/i;
+  const pPlin2=/^(.+?)\s+te\s+pline[oó]\s+S\/\.?\s*([\d,.]+)/i;
   // Código seguridad
   const pCod=/c[oó]d(?:\.|igo)?\s+de\s+seguridad\s+es:\s*(\d+)/i;
 
@@ -101,23 +96,26 @@ function extraerDatos(body) {
 
     const mc=texto.match(pCod); if(mc&&!codigo)codigo=mc[1];
 
-    // Detectar Plin (Interbank y BBVA)
+    // Detectar Plin Interbank
     const mPlin1=texto.match(pPlin1);
-    if(mPlin1){nombre=nombre||mPlin1[1].trim();monto=monto||parseFloat(mPlin1[2].replace(',','.'));app='Plin';continue;}
+    if(mPlin1){nombre=nombre||mPlin1[1].trim();monto=monto||parseFloat(mPlin1[2].replace(',','.'));app='Plin';esPagoReal=true;continue;}
+
+    // Detectar Plin BBVA
     const mPlin2=texto.match(pPlin2);
-    if(mPlin2){nombre=nombre||mPlin2[1].trim();monto=monto||parseFloat(mPlin2[2].replace(',','.'));app='Plin';continue;}
-    if(texto.match(pPlin3)){app='Plin';}
+    if(mPlin2){nombre=nombre||mPlin2[1].trim();monto=monto||parseFloat(mPlin2[2].replace(',','.'));app='Plin';esPagoReal=true;continue;}
 
-    // Detectar Yape
+    // Detectar Yape (con "Yape!" al inicio)
     const mYape2=texto.match(pYape2);
-    if(mYape2){nombre=nombre||mYape2[1].trim();monto=monto||parseFloat(mYape2[2].replace(',','.'));app='Yape';continue;}
-    const mYape1=texto.match(pYape1);
-    if(mYape1){nombre=nombre||mYape1[1].trim();monto=monto||parseFloat(mYape1[2].replace(',','.'));app='Yape';continue;}
+    if(mYape2){nombre=nombre||mYape2[1].trim();monto=monto||parseFloat(mYape2[2].replace(',','.'));app='Yape';esPagoReal=true;continue;}
 
-    // Fallback monto y nombre
-    const mM=texto.match(pMonto); if(mM&&!monto)monto=parseFloat(mM[1].replace(',','.'));
-    const mN=texto.match(pNombre)||texto.match(pNombre2); if(mN&&!nombre)nombre=mN[1].trim();
+    // Detectar Yape (sin "Yape!" al inicio)
+    const mYape1=texto.match(pYape1);
+    if(mYape1){nombre=nombre||mYape1[1].trim();monto=monto||parseFloat(mYape1[2].replace(',','.'));app='Yape';esPagoReal=true;continue;}
   }
+
+  // Si no matcheó ningún patrón de pago real, retornar null para ignorar
+  if(!esPagoReal) return null;
+
   return {nombre:nombre||'Pago recibido',monto:monto||0,codigo:codigo||null,app,textoOriginal:textoCompleto};
 }
 
@@ -274,7 +272,9 @@ app.post('/yape/:token',async(req,res)=>{
   try {
     const r=await pool.query('SELECT id FROM usuarios WHERE token=$1 AND activo=true',[req.params.token]);
     if(!r.rows[0]) return res.status(404).json({error:'Token inválido'});
-    const {nombre,monto,codigo,app,textoOriginal}=extraerDatos(req.body);
+    const datos=extraerDatos(req.body);
+    if(!datos) return res.json({ok:true,ignorado:true,razon:'No es un pago real de Yape/Plin'});
+    const {nombre,monto,codigo,app,textoOriginal}=datos;
     const ahora=new Date();
     const pago={id:Date.now(),usuario_id:r.rows[0].id,nombre,monto,codigo,app:app||'Yape',texto_original:textoOriginal,hora:horaAhoraPeru(),fecha:fechaHoyPeru(),ts:ahora};
     await pool.query(
