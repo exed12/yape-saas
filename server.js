@@ -148,6 +148,25 @@ app.post('/api/login', async (req,res) => {
 
 app.post('/api/logout',(req,res)=>{res.clearCookie('token');res.json({ok:true});});
 
+// ── LOGIN PARA APP MÓVIL (devuelve token en body, no en cookie) ───────────────
+app.post('/api/app/login', async (req,res) => {
+  const {email,password}=req.body;
+  if(!email||!password) return res.status(400).json({error:'Email y contraseña requeridos'});
+  try {
+    const r=await pool.query('SELECT * FROM usuarios WHERE email=$1 AND activo=true',[email.toLowerCase()]);
+    const user=r.rows[0];
+    if(!user||!(await bcrypt.compare(password,user.password_hash)))
+      return res.status(401).json({error:'Credenciales incorrectas'});
+    res.json({
+      ok:true,
+      token: user.token,
+      nombre_negocio: user.nombre_negocio,
+      email: user.email,
+      plan: user.plan
+    });
+  } catch(e){console.error(e);res.status(500).json({error:'Error del servidor'});}
+});
+
 app.get('/api/me',authMiddleware,async(req,res)=>{
   try {
     const r=await pool.query('SELECT id,email,nombre_negocio,token,plan,rol FROM usuarios WHERE id=$1',[req.user.id]);
