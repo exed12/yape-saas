@@ -167,6 +167,25 @@ app.post('/api/app/login', async (req,res) => {
   } catch(e){console.error(e);res.status(500).json({error:'Error del servidor'});}
 });
 
+// ── REGISTRO PARA APP MÓVIL ───────────────────────────────────────────────────
+app.post("/api/app/registro", async (req,res) => {
+  const {email,password,nombre_negocio}=req.body;
+  if(!email||!password||!nombre_negocio) return res.status(400).json({error:"Email, contraseña y nombre son requeridos"});
+  if(password.length < 6) return res.status(400).json({error:"La contraseña debe tener al menos 6 caracteres"});
+  try {
+    const existe=await pool.query("SELECT id FROM usuarios WHERE email=$1",[email.toLowerCase()]);
+    if(existe.rows[0]) return res.status(409).json({error:"Ya existe una cuenta con ese email"});
+    const hash=await bcrypt.hash(password,10);
+    const token=require("crypto").randomBytes(16).toString("hex");
+    const r=await pool.query(
+      "INSERT INTO usuarios(email,password_hash,nombre_negocio,token,plan,rol,activo) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING id,email,nombre_negocio,token,plan",
+      [email.toLowerCase(),hash,nombre_negocio.trim(),token,"basico","usuario",true]
+    );
+    const user=r.rows[0];
+    res.json({ok:true,token:user.token,nombre_negocio:user.nombre_negocio,email:user.email,plan:user.plan});
+  } catch(e){console.error(e);res.status(500).json({error:"Error del servidor"});}
+});
+
 app.get('/api/me',authMiddleware,async(req,res)=>{
   try {
     const r=await pool.query('SELECT id,email,nombre_negocio,token,plan,rol FROM usuarios WHERE id=$1',[req.user.id]);
