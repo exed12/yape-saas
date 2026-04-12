@@ -148,6 +148,24 @@ app.post('/api/login', async (req,res) => {
 
 app.post('/api/logout',(req,res)=>{res.clearCookie('token');res.json({ok:true});});
 
+// ── REGISTRO WEB ─────────────────────────────────────────────────────────────
+app.post("/api/registro", async (req,res) => {
+  const {email,password,nombre_negocio}=req.body;
+  if(!email||!password||!nombre_negocio) return res.status(400).json({error:"Todos los campos son requeridos"});
+  if(password.length < 6) return res.status(400).json({error:"La contraseña debe tener al menos 6 caracteres"});
+  try {
+    const existe=await pool.query("SELECT id FROM usuarios WHERE email=$1",[email.toLowerCase()]);
+    if(existe.rows[0]) return res.status(409).json({error:"Ya existe una cuenta con ese email"});
+    const hash=await bcrypt.hash(password,10);
+    const token=require("crypto").randomBytes(16).toString("hex");
+    await pool.query(
+      "INSERT INTO usuarios(email,password_hash,nombre_negocio,token,plan,rol,activo) VALUES($1,$2,$3,$4,$5,$6,$7)",
+      [email.toLowerCase(),hash,nombre_negocio.trim(),token,"basico","usuario",true]
+    );
+    res.json({ok:true});
+  } catch(e){console.error(e);res.status(500).json({error:"Error del servidor"});}
+});
+
 // ── LOGIN PARA APP MÓVIL (devuelve token en body, no en cookie) ───────────────
 app.post('/api/app/login', async (req,res) => {
   const {email,password}=req.body;
